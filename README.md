@@ -1,4 +1,4 @@
-# SoWellLife_v2
+# RA_v2
 It's a javaweb concerning mentalhealth with an interesting llm agent.
 
 ### Start npm
