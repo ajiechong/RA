@@ -1,0 +1,11 @@
+default:
+  llm_provider: "openai"
+  api_base: "https://ark.cn-beijing.volces.com/api/v3"
+  api_key: "8bb73b47-4913-41d1-99bb-1468a0b40b80"  # 实际从环境变量读取
+  model: "doubao-1-5-lite-32k-250115"
+  temperature: 0.7
+  max_tokens: 8000
+
+azure:
+  api_base: "https://your-resource.openai.azure.com/"
+  api_version: "2023-07-01-preview"

@@ -1,0 +1,45 @@
+## Project Feature
+research-ai/
+├── configs/                 # 配置文件
+│   ├── roles/               # 角色专属配置
+│   │   ├── literature.yaml  # 文献分析角色参数
+│   │   └── writer.yaml      # 论文撰写参数
+│   └── llm_config.yaml      # 模型API配置
+├── core/
+│   ├── agents/              # 所有角色实现
+|   |—— rag/                 # 这里是核心加载文件以及对文件元数据进行RAG并且测试的文件
+│   ├── services/            # 核心服务
+│   │   ├── rag_service.py   # Retrival服务
+│   │   └── vec_retrivers
+│   └── models/              # 数据模型
+├── utils/
+│   ├── prompt_templates/    # Prompt模板库
+│   └── file_processor.py    # 文件解析（PDF/Tex/代码）
+├── api/
+│   ├── app.py               # FastAPI主入口
+│   └── routers/             # 路由模块
+|        |-----chat.py
+|
+|—— tests/
+    - test_llm
+    - test_api
+## Setup
+### set python path
+like:   export PYTHONPATH=/Users/username/ExHelper:$PYTHONPATH  ### modify Exhelper as a module of RA
+export PYTHONPATH=/Users/username/ResearchAssistant:$PYTHONPATH
+
+### create a python env
+python -m venv exhelper
+source exhelper/bin/activate
+
+### install requirements
+pip install -r requirements.txt
+
+
+### set llm and keyß
+In the config/llm_config.json, I have set a one and you can modify to yours.
+
+### notes:
+1.run some test in tests module, both agents and  llm_api and retrieval. Make sure they can run smoothly.
+2.You can build artical_vectors by run test, or unzip the article_vectors.npy.zip.
+3.If you want to run both python and java, go to "project structure" and set the interpreters.

@@ -1,0 +1,10 @@
+{
+    "openai": {
+        "api_key":"sk-D3IUWYvD1LkNdjcpAyT7lttrggfA7ah2NuZxgIhTIfKz3JMK",
+        "base_url":"https://api.agicto.cn/v1",
+        "default_model":"gpt-4o-mini",
+        "temperature": 0.5,
+        "max_tokens": 16000,
+        "batch_size": 1
+    }
+}
