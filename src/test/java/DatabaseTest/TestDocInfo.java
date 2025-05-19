@@ -1,5 +1,8 @@
 package DatabaseTest;
 
+import org.example.researchassistant.dao.impl.DocInfoDaoImpl;
+import org.example.researchassistant.domain.DocInfo;
+
 import java.util.List;
 
 public class TestDocInfo {

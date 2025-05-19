@@ -1,18 +1,15 @@
 package org.example.researchassistant.service.impl;
 
-import org.example.researchassistant.controller.ChatHistoryController;
-import org.example.researchassistant.service.ChatHistoryService;
+import org.example.researchassistant.controller.ResourceVideoController;
+import org.example.researchassistant.dao.ChatHistoryDao;
+import org.example.researchassistant.dao.impl.ChatHistoryDaoImpl;
+import org.example.researchassistant.domain.ChatHistory;
 import org.example.researchassistant.service.AIService;
-import org.example.researchassistant.entity.ChatHistory;
-import org.example.researchassistant.mapper.ChatHistoryMapper;
-
-import org.slf4j.Logger;
+import org.example.researchassistant.service.ChatHistoryService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
-import javax.security.auth.callback.CallbackHandler;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -21,62 +18,64 @@ import java.util.stream.Collectors;
 @Service
 public class ChatHistoryServiceImpl implements ChatHistoryService {
 
-    @Autowired
-    private ChatHistoryMapper chatHistoryMapper;
+    private ChatHistoryDao chatHistoryDao = new ChatHistoryDaoImpl();
 
     @Autowired
     private AIService aiService;
-    //logger
-    private Logger logger = LoggerFactory.getLogger(ChatHistoryServiceImpl.class);
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ResourceVideoController.class);
 
     @Override
     public List<ChatHistory> getUserChatSessions(Integer uid) {
-        List<ChatHistory> allUserChats = chatHistoryMapper.getChatHistoryByUid(uid);
 
+        List<ChatHistory> allUserChats = chatHistoryDao.getChatHistoryByUid(uid);
         logger.info("Retrieved chat sessions for user {}: {}", uid, allUserChats);
         return allUserChats.stream()
                 .collect(Collectors.groupingBy(ChatHistory::getCid))
                 .values()
                 .stream()
-                .map(chatList ->
-                        chatList.stream()
-                                .max(Comparator.comparing(ChatHistory::getHtime))
-                                .orElse(chatList.get(0))
-                )
+                .map(chatList -> {
+                    // 获取最新的消息而不是第一条消息
+                    return chatList.stream()
+                            .max(Comparator.comparing(ChatHistory::getHtime))
+                            .orElse(chatList.get(0));
+                })
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<ChatHistory> getChatHistoryByCid(Integer cid) {
-        return  chatHistoryMapper.getChatHistoryByCid(cid);
+        return chatHistoryDao.getChatHistoryByCid(cid);
     }
 
     @Override
     public Integer createNewChatSession(Integer uid, String initialMessage) {
+        // 生成新的会话ID
         Integer newCid = (int) (System.currentTimeMillis() / 1000);
 
-        // 1. 插入系统指令（使用 Mapper 通用插入方法）
+        // 1. 首先插入系统指令
         ChatHistory systemPrompt = new ChatHistory();
         systemPrompt.setCid(newCid);
         systemPrompt.setUid(uid);
         systemPrompt.setHtime(LocalDateTime.now());
-        systemPrompt.setContent("你是一个用于计算机领域的科研助手...");
+        systemPrompt.setContent("你是一个AI心理健康助手，名字叫\"沙包\"，你需要尽量以温柔的语气与用户对话，因为他们大多数是来寻求心理帮助的，你要表现得尽量温和善良");
         systemPrompt.setHName("新对话");
-        systemPrompt.setRole("system");
+        systemPrompt.setRole("system");  // 使用特殊的role标记系统指令
 
-        chatHistoryMapper.insert(systemPrompt);
+        chatHistoryDao.insertChatHistory(systemPrompt);
 
-        // 2. 插入AI欢迎语（同上）
+        // 2. 插入AI的欢迎语
         ChatHistory welcomeMessage = new ChatHistory();
         welcomeMessage.setCid(newCid);
         welcomeMessage.setUid(uid);
         welcomeMessage.setHtime(LocalDateTime.now());
-        welcomeMessage.setContent("你好！我是AI科研助手，希望能帮助你解决更多有关计算机的科研问题...");
+        welcomeMessage.setContent("你好！我是AI心理助手\"沙包\"，很高兴和你一起聊天😊");
         welcomeMessage.setHName("新对话");
         welcomeMessage.setRole("assistant");
-        chatHistoryMapper.insert(welcomeMessage);
 
-        // 3. 处理用户初始消息
+        chatHistoryDao.insertChatHistory(welcomeMessage);
+
+        // 3. 如果有初始消息，则创建用户的消息记录
         if (initialMessage != null && !initialMessage.trim().isEmpty()) {
             ChatHistory userMessage = new ChatHistory();
             userMessage.setCid(newCid);
@@ -86,26 +85,30 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
             userMessage.setHName(initialMessage.length() > 6 ?
                     initialMessage.substring(0, 6) : initialMessage);
             userMessage.setRole("user");
-            chatHistoryMapper.insert(userMessage);
+
+            chatHistoryDao.insertChatHistory(userMessage);
         }
 
         return newCid;
-
     }
 
     @Override
     public ChatHistory sendMessage(Integer cid, Integer uid, String message, Boolean shouldSave) {
         try {
+            // 获取AI响应
             String aiReply = aiService.getAIResponse(cid, message);
-            if (aiReply.equals("sorry科研助手出了点小问题...")) {
+
+            // 如果是错误消息，直接返回但不保存
+            if (aiReply.equals("沙包出了点小问题，后面再试试吧~😀")) {
                 ChatHistory errorResponse = new ChatHistory();
                 errorResponse.setContent(aiReply);
                 errorResponse.setRole("assistant");
                 return errorResponse;
             }
 
+            // 只有在需要保存且不是错误消息时才保存到数据库
             if (shouldSave) {
-                // 保存用户消息（使用 Mapper 插入）
+                // 保存用户消息
                 ChatHistory userMessage = new ChatHistory();
                 userMessage.setCid(cid);
                 userMessage.setUid(uid);
@@ -113,12 +116,12 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
                 userMessage.setContent(message);
                 userMessage.setRole("user");
 
-                // ✅ 调用 Mapper 自定义方法
-                ChatHistory lastMessage = chatHistoryMapper.getLastMessageByCid(cid);
-                String chatName = lastMessage != null ? lastMessage.getHName() :
+                ChatHistory existingChat = chatHistoryDao.getLastMessageByCid(cid);
+                String chatName = existingChat != null ? existingChat.getHName() :
                         (message.length() > 6 ? message.substring(0, 6) : message);
                 userMessage.setHName(chatName);
-                chatHistoryMapper.insert(userMessage); // 插入用户消息
+
+                chatHistoryDao.insertChatHistory(userMessage);
 
                 // 保存AI响应
                 ChatHistory aiResponse = new ChatHistory();
@@ -128,32 +131,33 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
                 aiResponse.setContent(aiReply);
                 aiResponse.setHName(chatName);
                 aiResponse.setRole("assistant");
-                chatHistoryMapper.insert(aiResponse); // 插入AI响应
+
+                chatHistoryDao.insertChatHistory(aiResponse);
                 return aiResponse;
             } else {
-                ChatHistory errorResponse = new ChatHistory();
-                errorResponse.setContent(aiReply);
-                errorResponse.setRole("assistant");
-                return errorResponse;
+                // 不保存到数据库，只返回响应
+                ChatHistory aiResponse = new ChatHistory();
+                aiResponse.setContent(aiReply);
+                aiResponse.setRole("assistant");
+                return aiResponse;
             }
         } catch (Exception e) {
             throw new RuntimeException("发送消息失败: " + e.getMessage());
         }
     }
+
+
     @Override
     public void deleteChatSession(Integer cid) {
-        chatHistoryMapper.delete(new QueryWrapper<ChatHistory>().eq("Cid", cid));
+        chatHistoryDao.deleteChatHistory("Cid = " + cid);
     }
 
     @Override
     public void updateChatSessionName(Integer cid, String newName) {
-        List<ChatHistory> chatHistories = chatHistoryMapper.getChatHistoryByCid(cid);
-
+        List<ChatHistory> chatHistories = chatHistoryDao.getChatHistoryByCid(cid);
         for (ChatHistory chat : chatHistories) {
             chat.setHName(newName);
-            chatHistoryMapper.update(chat,
-                    new QueryWrapper<ChatHistory>().eq("Hid", chat.getHid())
-            );
+            chatHistoryDao.updateChatHistory(chat, "Hid = " + chat.getHid());
         }
     }
 }

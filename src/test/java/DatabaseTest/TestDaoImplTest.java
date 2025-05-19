@@ -1,13 +1,17 @@
 
 package DatabaseTest;
 
+import org.example.researchassistant.dao.TestzDao;
+import org.example.researchassistant.domain.Testz;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 public class TestDaoImplTest {
 

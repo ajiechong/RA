@@ -1,5 +1,7 @@
 package DatabaseTest;
 
+import org.example.researchassistant.dao.impl.QuizDaoImpl;
+import org.example.researchassistant.domain.Quiz;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

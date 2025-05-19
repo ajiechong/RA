@@ -32,7 +32,7 @@ public class OpenAiConfig {
         //config request factory
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
         requestFactory.setConnectTimeout(initialTimeout);
-        requestFactory.setReadTimeout(initialTimeout);
+        //requestFactory.setReadTimeout(initialTimeout);
         restTemplate.setRequestFactory(requestFactory);
         return restTemplate;
 

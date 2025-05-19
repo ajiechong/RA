@@ -1,9 +1,9 @@
 package org.example.researchassistant.service;
 
-import org.example.researchassistant.entity.ChatHistory;
+import org.example.researchassistant.domain.ChatHistory;
+
 import java.util.List;
 
-//
 public interface ChatHistoryService {
     List<ChatHistory> getUserChatSessions(Integer uid);
     List<ChatHistory> getChatHistoryByCid(Integer cid);

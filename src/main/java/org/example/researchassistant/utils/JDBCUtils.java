@@ -9,6 +9,10 @@ import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/*
+    该工具类提供了数据库连接池相关功能以及统一的数据库操作模板，
+    可通过传入不同的SQL语句来执行查询、删除、更新等操作，无需为每条语句单独编写打开连接等过程。
+*/
 public class JDBCUtils {
 
     private static DataSource dataSource;
@@ -19,7 +23,7 @@ public class JDBCUtils {
     private static String username;
     private static String password;
 
-    private static final String CONFIG_FILE_PATH = "//Users//ira//Documents//SoWellLife_v2//src//main//resources//druid.properties";
+    private static final String CONFIG_FILE_PATH = "C:\\1_Tangwj\\终极实训\\SoWellLife_v2\\src\\main\\resources\\druid.properties";
 
 
 
@@ -29,7 +33,7 @@ public class JDBCUtils {
     static {
         try {
             // 加载配置文件
-            // InputStream is = JDBCUtils.class.getClassLoader().getResourceAsStream("D:\\So\\SoWellLife\\src\\main\\resources\\druid.properties");
+           // InputStream is = JDBCUtils.class.getClassLoader().getResourceAsStream("D:\\So\\SoWellLife\\src\\main\\resources\\druid.properties");
             Properties properties = new Properties();
             InputStream is = new FileInputStream(CONFIG_FILE_PATH);
             properties.load(is);

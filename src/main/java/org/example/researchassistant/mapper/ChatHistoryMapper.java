@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.example.researchassistant.entity.ChatHistory;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 @Mapper
