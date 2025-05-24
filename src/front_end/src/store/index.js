@@ -56,7 +56,7 @@ export default createStore({
             // 清除用户信息
             commit('LOGOUT');
             // 清除 localStorage 中的用户信息
-            localStorage.removeItem('user');
+            // localStorage.removeItem('user');
         },
     },
     getters: {

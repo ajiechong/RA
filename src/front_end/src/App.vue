@@ -35,10 +35,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-//background: linear-gradient(135deg, #333, #666);
-//background: linear-gradient(135deg, #57819b, #132234);
   background: linear-gradient(135deg, #4e7d9b, #132234);
-//background: linear-gradient(135deg, #4e7d9b, #032d50);
   z-index: -1;
 }
 

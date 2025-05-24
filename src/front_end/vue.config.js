@@ -4,7 +4,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://localhost:8080', // 后端服务的地址
+        target: 'http://localhost:8082', // 后端服务的地址
         changeOrigin: true, // 确保跨域时 Host 头被改成目标地址
         pathRewrite: { '^/api': '/api' } // 保留 /api 前缀
       }

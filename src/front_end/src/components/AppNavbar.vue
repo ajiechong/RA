@@ -109,17 +109,17 @@
 <script>
 import {mapState, mapActions, useStore} from 'vuex';
 import axios from 'axios';
-import {onMounted} from "vue";
+// import {onMounted} from "vue";
 import { API_BASE_URL } from '@/utils/api';
 
 export default {
   name: "AppNavbar",
 
   setup() {
-    const store = useStore();
-    onMounted(() => {
-      store.dispatch('restoreUser');
-    });
+    useStore();
+    // onMounted(() => {
+    //   store.dispatch('restoreUser');
+    // });
   },
 
   data() {
@@ -516,7 +516,6 @@ header {
 
 
 .navbar {
-  //background-color: #8cb3da;
   background-color: rgb(143, 188, 160);
   padding: 0.7rem 15rem;
   border-bottom: 1px solid #e0e0e0;
