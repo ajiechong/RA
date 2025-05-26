@@ -105,7 +105,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void updateUser(User user, String condition) {
-        String sql = "UPDATE user SET Email =?, UName =?, AvatarUser =? ,UserPSW=?WHERE " + condition;
+        String sql = "UPDATE user SET Email =?, UName =?, AvatarUser =? ,UserPSW=? WHERE " + condition;
         try (Connection connection = jdbcUtils.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, user.getEmail());

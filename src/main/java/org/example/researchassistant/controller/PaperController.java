@@ -2,6 +2,7 @@ package org.example.researchassistant.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.example.researchassistant.dto.PaperDTO;
 import org.example.researchassistant.dto.PaperSummaryDTO;
 import org.example.researchassistant.entity.Paper;
 import org.example.researchassistant.service.PaperService;

@@ -1,94 +1,87 @@
 <template>
-  <div class="nav-container">
-    <header>
-      <div class="header-content">
-        <div class="search-login">
-          <div class="user-avatar-container"
-               @click="isLoggedIn ? goToProfile() : showLoginModal()"
-               @mouseover="isLoggedIn && (avatarHover = true, isDropdownVisible = true)"
-               @mouseleave="avatarHover = false, isDropdownVisible = false">
-            <img
-                :src="isLoggedIn ? (avatar_url || 'https://tse3-mm.cn.bing.net/th/id/OIP-C.yp-D-KHI3e2nN4eMBJcEVAAAAA?rs=1&pid=ImgDetMain') : require('@/assets/imgs/avatar/login.png')"
-                alt="用户头像"
-                class="user-avatar-img"
-                :class="{'avatar-hover': avatarHover}">
-            <!-- 下拉框 -->
-            <div v-if="isDropdownVisible && isLoggedIn" class="dropdown-menu" @click.stop>
-              <div class="user-info">
-                <div class="username">{{ username }}</div>
-              </div>
-              <div class="button-group">
-                <div class="button" @click="goToProfile">
-                  <img src="@/assets/imgs/icon/user.png" alt="设置" class="icon">
-                  <span style="color: black;">个人设置</span>
-                </div>
-                <div class="button" @click="gotoCollect">
-                  <img src="@/assets/imgs/icon/collect.png" alt="收藏" class="icon">
-                  <span style="color: black;">收藏</span>
-                </div>
-                <div class="button" @click="logout">
-                  <img src="@/assets/imgs/icon/logout.png" alt="退出" class="icon">
-                  <span style="color: black;">退出登录</span>
-                </div>
-              </div>
-            </div>
+  <div class="app-nav-bar">
+
+    <div class="user-avatar-container"
+         @click="isLoggedIn ? goToProfile() : showLoginModal()"
+         @mouseover="isLoggedIn && (avatarHover = true, isDropdownVisible = true)"
+         @mouseleave="avatarHover = false, isDropdownVisible = false">
+      <img
+          :src="isLoggedIn ? (avatar_url || 'https://tse3-mm.cn.bing.net/th/id/OIP-C.yp-D-KHI3e2nN4eMBJcEVAAAAA?rs=1&pid=ImgDetMain') : require('@/assets/imgs/avatar/login.png')"
+          alt="用户头像"
+          class="user-avatar-img"
+          :class="{'avatar-hover': avatarHover}">
+      <!-- 下拉框 -->
+      <div v-if="isDropdownVisible && isLoggedIn" class="dropdown-menu" @click.stop>
+        <div class="user-info">
+          <div class="username">{{ username }}</div>
+        </div>
+        <div class="button-group">
+          <div class="button" @click="goToProfile">
+            <img src="@/assets/imgs/icon/user.png" alt="设置" class="icon">
+            <span style="color: black;">个人设置</span>
           </div>
-          <!-- 登录框 -->
-          <div v-if="show_Login" class="login-modal">
-            <div class="login-modal-content">
-              <span class="close-btn" @click="closeLoginModal">×</span>
-              <div class="login-tabs">
-                <span :class="{'active': isPasswordLogin}" @click="setLoginMethod('password')">密码登录</span>
-                |
-                <span :class="{'active': !isPasswordLogin && !isRegistering}" @click="setLoginMethod('captcha')">邮箱验证</span>
-              </div>
-
-              <!-- 密码登录 -->
-              <div v-if="isPasswordLogin && !isRegistering" class="login-form">
-                <div class="form-group">
-                  <label for="username" class="input-label">账号</label>
-                  <input id="username" type="text" v-model="identifier" placeholder="请输入用户id或者邮箱" class="input-field" />
-                </div>
-                <div class="form-group">
-                  <label for="password" class="input-label">密码</label>
-                  <el-input id="password" type="password" v-model="password" placeholder="请输入密码" class="input-field" style="width: 80%;height:100%;color: #888;z-index:1000;"
-                            show-password />
-                </div>
-                <div class="button-group">
-                  <button @click="login_verify" class="btn">登录</button>
-                  <button @click="startRegister" class="btn">注册</button>
-                </div>
-              </div>
-
-              <!-- 邮箱验证码登录 -->
-              <div v-if="!isPasswordLogin && !isRegistering" class="login-form">
-                <div class="form-group">
-                  <label for="email" class="input-label">邮箱</label>
-                  <input id="email" type="text" v-model="email" placeholder="请输入邮箱" class="input-field" />
-                </div>
-                <div class="captcha-group">
-                  <label for="captcha" class="captcha-input-label">验证码</label>
-                  <input type="tel" v-model="captcha" class="captcha-input" placeholder="请输入验证码" maxlength="6" @input="validateCaptcha" inputmode="numeric" />
-                  <button class="captcha-btn" :disabled="isSending || !isEmailValid" @click="startCountdown">{{ countdownText }}</button>
-                </div>
-                <div class="button-group">
-                  <button @click="register_verify" class="btn">登录/注册</button>
-                </div>
-              </div>
-
-              <div class="agreement-text">
-                如果你没注册过 SoWellLife，我们将自动帮你注册账号，登录或完成注册代表你同意
-                <a href="/user-agreement" target="_blank">用户协议</a> 和
-                <a href="/privacy-policy" target="_blank">隐私政策</a>。
-              </div>
-            </div>
+          <div class="button" @click="gotoCollect">
+            <img src="@/assets/imgs/icon/collect.png" alt="收藏" class="icon">
+            <span style="color: black;">收藏</span>
           </div>
-
+          <div class="button" @click="logout">
+            <img src="@/assets/imgs/icon/logout.png" alt="退出" class="icon">
+            <span style="color: black;">退出登录</span>
+          </div>
         </div>
       </div>
-    </header>
-  </div>
-  <div class="app-nav-bar">
+    </div>
+    <!-- 登录框 -->
+    <div v-if="show_Login" class="login-modal">
+      <div class="login-modal-content">
+        <span class="close-btn" @click="closeLoginModal">×</span>
+        <div class="login-tabs">
+          <span :class="{'active': isPasswordLogin}" @click="setLoginMethod('password')">密码登录</span>
+          |
+          <span :class="{'active': !isPasswordLogin && !isRegistering}" @click="setLoginMethod('captcha')">邮箱验证</span>
+        </div>
+
+        <!-- 密码登录 -->
+        <div v-if="isPasswordLogin && !isRegistering" class="login-form">
+          <div class="form-group">
+            <label for="username" class="input-label">账号</label>
+            <input id="username" type="text" v-model="identifier" placeholder="请输入用户id或者邮箱" class="input-field" />
+          </div>
+          <div class="form-group">
+            <label for="password" class="input-label">密码</label>
+            <el-input id="password" type="password" v-model="password" placeholder="请输入密码" class="input-field" style="width: 80%;height:100%;color: #888;z-index:1000;"
+                      show-password />
+          </div>
+          <div class="button-group">
+            <button @click="login_verify" class="btn">登录</button>
+            <button @click="startRegister" class="btn">注册</button>
+          </div>
+        </div>
+
+        <!-- 邮箱验证码登录 -->
+        <div v-if="!isPasswordLogin && !isRegistering" class="login-form">
+          <div class="form-group">
+            <label for="email" class="input-label">邮箱</label>
+            <input id="email" type="text" v-model="email" placeholder="请输入邮箱" class="input-field" />
+          </div>
+          <div class="captcha-group">
+            <label for="captcha" class="captcha-input-label">验证码</label>
+            <input type="tel" v-model="captcha" class="captcha-input" placeholder="请输入验证码" maxlength="6" @input="validateCaptcha" inputmode="numeric" />
+            <button class="captcha-btn" :disabled="isSending || !isEmailValid" @click="startCountdown">{{ countdownText }}</button>
+          </div>
+          <div class="button-group">
+            <button @click="register_verify" class="btn">登录/注册</button>
+          </div>
+        </div>
+
+        <div class="agreement-text">
+          如果你没注册过 SoWellLife，我们将自动帮你注册账号，登录或完成注册代表你同意
+          <a href="/user-agreement" target="_blank">用户协议</a> 和
+          <a href="/privacy-policy" target="_blank">隐私政策</a>。
+        </div>
+      </div>
+    </div>
+
     <!-- 欢迎信息 -->
     <div class="welcome">
       <h1>Welcome to Research Assistant</h1>
@@ -101,6 +94,8 @@
       <button class="tab" :class="{ active: $route.name === 'search' }" @click="goTo('search')">Search</button>
       <button class="tab" :class="{ active: $route.name === 'recommend' }" @click="goTo('recommend')">Recommend</button>
       <button class="tab" :class="{ active: $route.name === 'chat' }" @click="goTo('chat')">Chat</button>
+      <button class="tab" :class="{ active: $route.name === 'VideoResourcePage' }" @click="goTo('VideoResourcePage')">Video</button>
+      <button class="tab" :class="{ active: $route.name === 'ArticleResourcePage' }" @click="goTo('ArticleResourcePage')">Article</button>
     </div>
   </div>
 
@@ -383,7 +378,7 @@ export default {
 .welcome h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  margin-top: 100px;
+  margin-top: -50px;
 }
 
 .welcome p {
@@ -425,12 +420,11 @@ export default {
   width: 100%;
   height: 80px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  background-color: rgb(68, 165, 146);
   z-index: 100;
 }
 
 header {
-  background-color: rgb(255, 255, 255);
+  background: linear-gradient(135deg, #4e7d9b, #132234);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   padding: 1rem 0;
 }
@@ -611,7 +605,7 @@ header {
 /* 登录框的样式 */
 .login-modal {
   position: fixed;
-  top: 0;
+  top: 10px;
   left: 0;
   right: 0;
   bottom: 0;
@@ -856,11 +850,14 @@ input {
   text-decoration: underline;
 }
 .user-avatar-container {
+  background: white;
   position: relative;
   display: inline-block;
   text-align: center; /* 确保头像容器内的内容水平居中 */
   z-index: 10;
-
+  box-shadow: 0 0 0 3px hsl(124, 44%, 93%); /* 模拟圆形边框 */
+  transform: translateX(800px);
+  top: -65px;
 }
 
 .user-avatar-img {

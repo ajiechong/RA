@@ -1,5 +1,5 @@
 <template>
-  <div class="background"></div>
+
   <div class="collection-container">
     <div class="user-info" style="margin-top: 400px;">
       <img :src="avatarUrl || require('@/assets/imgs/tests/1.png')" alt="用户头像" class="avatar-img">
@@ -50,6 +50,7 @@
       </div>
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -157,24 +158,27 @@ const fetchFavoriteResources = async () => {
 
 <style scoped>
 .collection-container {
+  margin-top: -350px;
   position: relative;
   width: 100%;
-  height: 100vh;
-  background-image: url('@/assets/imgs/background4.jpg');
+  height: auto;
+  background: linear-gradient(135deg, #4e7d9b, #132234);
   background-size: cover;
   background-position: center;
 }
+
 .background {
-  position: absolute;
-  top: -500px;
+  position: relative;
+  top: -350px;
   left: 0;
   width: 100%;
   height: 100%;
   background-size: 1800px auto;
   background-position: center;
   z-index: -1;
-  background-image: url('@/assets/imgs/final.jpg');
 }
+
+
 .user-info {
   display: flex;
   flex-direction: column;

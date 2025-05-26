@@ -24,7 +24,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 @CrossOrigin(origins = "http://localhost:8081")  // 前端地址
 @RestController
@@ -44,7 +44,6 @@ public class UserController {
 
     // 用于存储邮箱和验证码的映射，通常可以存储在数据库中
     private static final Map<String, String> emailVerificationCache = new HashMap<>();
-
 
     //处理用户邮箱验证发送验证码的请求
     @PostMapping("/register")
@@ -72,9 +71,7 @@ public class UserController {
         }
     }
 
-
     //用于发送邮件
-
     private void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("1728109414@qq.com");  // 发件人邮箱
@@ -87,18 +84,17 @@ public class UserController {
     }
 
     //用于验证邮箱格式是否有效
-
     private boolean isValidEmailFormat(String email) {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
     // 生成一个随机的验证码
-
     private String generateVerificationCode() {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);  // 生成六位数验证码
         return String.valueOf(code);
     }
+
     @PostMapping("/login-by-code")
     public String loginByCode(@RequestParam("email") String email, @RequestParam("code") String code) {
         // 1. 验证邮箱格式
@@ -136,8 +132,6 @@ public class UserController {
             newUser.setUserPSW("123456"); // 设置默认密码为 123456
 
             // 添加新用户
-//            userService.addUser(newUser);
-
             User savedUser = userService.addUser(newUser);
 
             // 返回注册成功的消息
@@ -149,7 +143,6 @@ public class UserController {
     }
 
     // 处理获取用户信息的 GET 请求
-
     @GetMapping("/profile")
     public User getUserByGet(@RequestParam("identifier") String identifier) {
         logger.info("GET 请求: 获取用户信息，传入标识符: {}", identifier);
@@ -157,7 +150,6 @@ public class UserController {
     }
 
     // 处理获取用户信息的 POST 请求
-
     @PostMapping("/profile")
     public User getUserByPost(@RequestParam("identifier") String identifier) {
         logger.info("POST 请求: 获取用户信息，传入标识符: {}", identifier);
@@ -165,7 +157,6 @@ public class UserController {
     }
 
     // 统一的获取用户信息逻辑
-
     private User fetchUser(String identifier) {
         User user = null;
 
@@ -201,13 +192,11 @@ public class UserController {
     }
 
     // 用于验证邮箱格式是否有效
-
     private boolean isValidEmail(String email) {
         return EMAIL_PATTERN.matcher(email).matches();
     }
 
     //用户密码验证接口（这个部分与获取用户信息的部分无关，但也涉及到用户名和密码验证）
-
     @PostMapping("/verify-password")
     public String verifyPassword(@RequestParam("identifier") String identifier,
                                  @RequestParam("password") String password) {
@@ -273,6 +262,7 @@ public class UserController {
             return "{\"success\": false, \"message\": \"更改密码时出错\", \"details\": \"" + e.getMessage() + "\"}";
         }
     }
+
     @PostMapping("/update")
     public String updateUser(@RequestParam(value = "uid")int uid,
                              @RequestParam(value = "newUserName", required = false) String newUserName,
@@ -355,8 +345,7 @@ public class UserController {
             }
 
             // 获取当前用户的旧头像路径
-            String oldAvatarUrl = userService. getAvatarPathByUserId(uid);  // 调用 UserService 方法获取头像路径
-
+            String oldAvatarUrl = userService.getAvatarPathByUserId(uid);  // 调用 UserService 方法获取头像路径
 
             // 打印旧头像路径，检查是否正确
             System.out.println("Old Avatar URL: " + oldAvatarUrl);
@@ -425,8 +414,7 @@ public class UserController {
                               @RequestParam(value = "newemail", required = false) String newemail,
                               HttpServletRequest request) {
         try {
-
-            // 调用 userService 中的 updateUserPassword 方法进行密码更新
+            // 调用 userService 中的 updateUserEmail 方法进行邮箱更新
             return userService.updateUserEmail(request);
         } catch (Exception e) {
             e.printStackTrace();
@@ -436,10 +424,10 @@ public class UserController {
 
     @PostMapping("/verify-email")
     public String getEmail(@RequestParam(value = "newemail") String newemail){
-        User user = fetchUser( newemail); // 使用 fetchUser 方法来获取用户信息
+        User user = fetchUser(newemail); // 使用 fetchUser 方法来获取用户信息
         if(user.getUid()!=0){
             return "{\"success\": false, \"message\": \"邮箱已经注册\"}";
         }
-        return "{\"success\": true, \"message\": \"邮箱已经注册\"}";
+        return "{\"success\": true, \"message\": \"邮箱可以使用\"}";
     }
 }

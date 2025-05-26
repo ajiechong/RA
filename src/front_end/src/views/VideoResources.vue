@@ -1,39 +1,40 @@
 <template>
-  <div class="background">
-    <!-- 加载中显示 -->
-    <div v-if="isLoading" class="loading-message">加载中...</div>
-    <!-- 错误信息显示 -->
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <!-- 视频资源列表 -->
-    <div class="video-resources-container">
-      <div
-          class="video-resource-card"
-          v-for="video in videos"
-          :key="video.rid"
-      >
-        <a :href="video.rurl" target="_blank">
-          <img
-              :src="require(`@/${video.rimg}`)"
-              :alt="video.rname"
-              class="video-resource-image"
-          />
-          <div class="video-resource-info">
-            <h3 class="video-resource-category">{{ video.rtag }}</h3>
-            <p class="video-resource-title">{{ video.rname }}</p>
-          </div>
-        </a>
-        <!-- 收藏按钮 -->
+  <div v-if="isLoading" class="loading-message">加载中...</div>
+  <!-- 错误信息显示 -->
+  <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <!-- 视频资源列表 -->
+  <div class="video-resources-container">
+    <div
+        class="video-resource-card"
+        v-for="video in videos"
+        :key="video.rid"
+    >
+      <a :href="video.rurl" target="_blank">
         <img
-            @click.prevent="toggleFavorite(video)"
-            :src="video.isFavorited
+            :src="require(`@/${video.rimg}`)"
+            :alt="video.rname"
+            class="video-resource-image"
+        />
+        <div class="video-resource-info">
+          <h3 class="video-resource-category">{{ video.rtag }}</h3>
+          <p class="video-resource-title">{{ video.rname }}</p>
+        </div>
+      </a>
+      <!-- 收藏按钮 -->
+      <img
+          @click.prevent="toggleFavorite(video)"
+          :src="video.isFavorited
             ? require('@/assets/imgs/收藏2.png')
             : require('@/assets/imgs/收藏1.png')"
-            alt="收藏"
-            class="favorite-icon"
-        />
-      </div>
+          alt="收藏"
+          class="favorite-icon"
+      />
     </div>
   </div>
+
+    <!-- 加载中显示 -->
+
+
 </template>
 
 <script>
@@ -154,10 +155,12 @@ export default {
 <style scoped>
 
 .background{
-  background-image: url('@/assets/imgs/background4.jpg');
+  //background-image: url('@/assets/imgs/background4.jpg');
+  background: linear-gradient(135deg, #4e7d9b, #132234);
   background-size: cover;
   background-position: center;
   padding-top: 15px;
+  min-height: 720vh;
 }
 
 
@@ -165,7 +168,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  padding-top: 130px;
+  padding-top: 50px;
   padding-bottom: 100px;
   max-width: 1200px;
   margin: 20px auto;

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 @Service
 public class UserService {
 
@@ -75,6 +75,10 @@ public class UserService {
     // 从HttpServletRequest中获取用户ID并更新用户名称，返回操作结果的JSON报文
     public String updateUserName(HttpServletRequest request) {
         try {
+            System.out.println("收到更新用户名请求:");
+            System.out.println("uid: " + request.getParameter("uid"));
+            System.out.println("newUserName: " + request.getParameter("newUserName"));
+
             int uid = Integer.parseInt(request.getParameter("uid"));
             String newUserName = request.getParameter("newUserName");
 

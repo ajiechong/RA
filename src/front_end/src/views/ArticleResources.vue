@@ -1,38 +1,35 @@
 
 <template>
-  <div class="background">
-    <!-- 加载中显示 -->
-    <div v-if="isLoading" class="loading-message">加载中...</div>
-    <!-- 错误信息显示 -->
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-    <!-- 资源列表 -->
-    <div class="article-resources-container">
-      <div
-          class="article-resource-card"
-          v-for="resource in resources"
-          :key="resource.rid"
-      >
-        <a :href="resource.rurl" target="_blank">
-          <img
-              :src="require(`@/${resource.rimg}`)"
-              :alt="resource.rname"
-              class="article-resource-image"
-          />
-          <div class="article-resource-info">
-            <h3 class="article-resource-category">{{ resource.rtag }}</h3>
-            <p class="article-resource-title">{{ resource.rname }}</p>
-          </div>
-        </a>
-        <!-- 收藏按钮 -->
+  <div v-if="isLoading" class="loading-message">加载中...</div>
+  <!-- 错误信息显示 -->
+  <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <!-- 资源列表 -->
+  <div class="article-resources-container">
+    <div
+        class="article-resource-card"
+        v-for="resource in resources"
+        :key="resource.rid"
+    >
+      <a :href="resource.rurl" target="_blank">
         <img
-            @click.prevent="toggleFavoriteResource(resource)"
-            :src="resource.isFavorited
+            :src="require(`@/${resource.rimg}`)"
+            :alt="resource.rname"
+            class="article-resource-image"
+        />
+        <div class="article-resource-info">
+          <h3 class="article-resource-category">{{ resource.rtag }}</h3>
+          <p class="article-resource-title">{{ resource.rname }}</p>
+        </div>
+      </a>
+      <!-- 收藏按钮 -->
+      <img
+          @click.prevent="toggleFavoriteResource(resource)"
+          :src="resource.isFavorited
             ? require('@/assets/imgs/收藏2.png')
             : require('@/assets/imgs/收藏1.png')"
-            alt="收藏"
-            class="favorite-icon"
-        />
-      </div>
+          alt="收藏"
+          class="favorite-icon"
+      />
     </div>
   </div>
 </template>
@@ -62,6 +59,7 @@ export default {
       axios.get(`${API_BASE_URL}/api/resources/all`)
           .then((response) => {
             console.log("API 返回的数据:", response.data);
+
             // 移除错误的默认收藏状态设置
             this.resources = response.data.map((resource) => ({
               ...resource,
@@ -156,10 +154,12 @@ export default {
 <style scoped>
 
 .background{
-  background-image: url('@/assets/imgs/background4.jpg');
-  background-size: cover;
+ pointer-events: none;
+  background-size: 100% 100%;
   background-position: center;
   padding-top: 15px;
+  min-height: 370vh;
+  background: linear-gradient(135deg, #4e7d9b, #132234);
 }
 
 
@@ -167,7 +167,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
-  padding-top: 130px;
+  padding-top: 50px;
   padding-bottom: 100px;
   max-width: 1200px;
   margin: 20px auto;
@@ -187,6 +187,7 @@ export default {
 .article-resource-card:hover {
   transform: translateY(-5px);
 }
+
 
 .article-resource-image {
   width: 100%;

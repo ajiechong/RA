@@ -80,6 +80,7 @@ const routes = [
     path: '/profile',
     name: 'ProfilePage',
     component: Profile_Page,
+    //meta:{hideNavbar:true}
   },
   {
     path: '/test',
@@ -89,7 +90,8 @@ const routes = [
   {
     path: '/collection',
     name: 'MyCollection',
-    component: MyCollection
+    component: MyCollection,
+    //meta:{hideNavbar:true}
   },
   {
     path: '/search',

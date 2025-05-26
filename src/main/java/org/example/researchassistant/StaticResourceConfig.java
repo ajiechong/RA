@@ -11,6 +11,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 映射 /uploads/** 到 D:/SoWell-Life/SoWellLife_v2/src/front_end/src/assets/imgs/avatar/
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:D:/ilikestudyhhhmaybe/Project/MentalHealth/SoWellLife_v2/src/front_end/src/assets/imgs/avatar");
+                .addResourceLocations("file:C:/1_Tangwj/终极实训/RA/src/front_end/src/assets/imgs/avatar/");
+                //.addResourceLocations("file:D:/ilikestudyhhhmaybe/Project/MentalHealth/SoWellLife_v2/src/front_end/src/assets/imgs/avatar");
     }
 }

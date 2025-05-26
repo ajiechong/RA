@@ -1,45 +1,46 @@
 <template>
-  <div class="background">
-    <div class="profile-page">
-      <!-- 错误提示区域 -->
-      <div v-if="showError" class="error-message">
-        <p>Identifier 参数丢失，请检查链接或联系管理员。</p>
+<!--  <div class="background">-->
+<!--    -->
+<!--  </div>-->
+
+  <div class="profile-page">
+    <!-- 错误提示区域 -->
+    <div v-if="showError" class="error-message">
+      <p>Identifier 参数丢失，请检查链接或联系管理员。</p>
+    </div>
+
+    <!-- 左侧导航栏 -->
+    <div class="sidebar" v-if="!showError">
+      <div class="settings-header">
+        <span class="settings-label">设置</span>
       </div>
 
-      <!-- 左侧导航栏 -->
-      <div class="sidebar" v-if="!showError">
-        <div class="settings-header">
-          <span class="settings-label">设置</span>
-        </div>
-
-        <!-- 设置子选项 -->
-        <div class="settings-options">
-          <button
-              :class="{ active: currentTab === 'profile' }"
-              @click="changeTab('profile')"
-          >
-            个人设置
-          </button>
-          <button
-              :class="{ active: currentTab === 'security' }"
-              @click="changeTab('security')"
-          >
-            安全设置
-          </button>
-        </div>
-      </div>
-
-      <!-- 右侧内容区 -->
-      <div class="content" v-if="!showError">
-        <!-- 根据选项渲染不同的组件 -->
-        <Profile_Info
-            v-if="currentTab === 'profile' "
-        />
-        <Security_Info v-if="currentTab === 'security' " />
+      <!-- 设置子选项 -->
+      <div class="settings-options">
+        <button
+            :class="{ active: currentTab === 'profile' }"
+            @click="changeTab('profile')"
+        >
+          个人设置
+        </button>
+        <button
+            :class="{ active: currentTab === 'security' }"
+            @click="changeTab('security')"
+        >
+          安全设置
+        </button>
       </div>
     </div>
-  </div>
 
+    <!-- 右侧内容区 -->
+    <div class="content" v-if="!showError">
+      <!-- 根据选项渲染不同的组件 -->
+      <Profile_Info
+          v-if="currentTab === 'profile' "
+      />
+      <Security_Info v-if="currentTab === 'security' " />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -71,7 +72,8 @@ export default {
 <style scoped>
 
 .background{
-  background-image: url('@/assets/imgs/background4.jpg');
+  //background-image: url('@/assets/imgs/background4.jpg');
+  background: linear-gradient(135deg, #4e7d9b, #132234);
   background-size: cover;
   background-position: center;
   min-height: 1000px;
@@ -95,10 +97,10 @@ export default {
 /* 设置整体容器 */
 .profile-page {
   display: flex;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
-  margin-top: 150px;
-  height: 600px;
+  margin-top: 50px;
+  height: 500px;
   background-color: #f9f9f9; /* 整体背景色统一 */
   border-radius: 10px; /* 整体圆角 */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 整体阴影 */

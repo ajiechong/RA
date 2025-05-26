@@ -82,6 +82,7 @@ export default {
   min-height: 1000px;
   height: 1050px;
   padding-top: 15px;
+  pointer-events: auto;
 }
 
 

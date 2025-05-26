@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 //是否发送Cookie
                 .allowCredentials(true)
                 //放行哪些原始域，也不能使用通识的，必须手动指定放行的
-                .allowedOrigins("http://localhost:8080","http://localhost:8081","http://localhost:8082")
+                .allowedOrigins("http://localhost:8080","http://localhost:8081","http://localhost:8082","http://localhost:8083","http://localhost:8085","http://localhost:8086")
                 .allowedMethods(new String[]{"GET", "POST", "PUT", "DELETE"})
                 //head也需要写明写明哪些头部信息
                 .allowedHeaders("*")

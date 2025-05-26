@@ -37,22 +37,22 @@ export default {
       }
 
       axios
-        .get('http://localhost:8080/papers/search', {
-          params: {
-            keyword: this.searchQuery,
-            pageNum: pageNum,
-            pageSize: 10,
-          },
-        })
-        .then((response) => {
-          this.searchResults = response.data.records || [];
-          this.searchPerformed = true;
-        })
-        .catch((error) => {
-          console.error('搜索失败:', error);
-          this.searchResults = [];
-          this.searchPerformed = true;
-        });
+          .get('http://localhost:8080/papers/search', {
+            params: {
+              keyword: this.searchQuery,
+              pageNum: pageNum,
+              pageSize: 10,
+            },
+          })
+          .then((response) => {
+            this.searchResults = response.data.records || [];
+            this.searchPerformed = true;
+          })
+          .catch((error) => {
+            console.error('搜索失败:', error);
+            this.searchResults = [];
+            this.searchPerformed = true;
+          });
     },
     formatDate(dateStr) {
       const date = new Date(dateStr);

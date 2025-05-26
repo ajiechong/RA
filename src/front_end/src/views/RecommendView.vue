@@ -39,16 +39,16 @@ export default {
           pageSize: this.pageSize
         }
       })
-        .then(response => {
-          const data = response.data;
-          console.log('收到记录：', data.records);
-          this.recommendedPapers = data.records || [];
-          this.totalPages = data.pages || 1;
-        })
-        .catch(error => {
-          console.error('获取论文数据失败:', error);
-          this.recommendedPapers = [];
-        });
+          .then(response => {
+            const data = response.data;
+            console.log('收到记录：', data.records);
+            this.recommendedPapers = data.records || [];
+            this.totalPages = data.pages || 1;
+          })
+          .catch(error => {
+            console.error('获取论文数据失败:', error);
+            this.recommendedPapers = [];
+          });
     },
     nextPage() {
       if (this.currentPage < this.totalPages) {

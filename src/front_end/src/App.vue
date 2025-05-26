@@ -2,7 +2,7 @@
   <div id="app" class="research-assistant">
     <div class="animated-bg"></div>
     <div class="background"></div>
-    <Navbar />
+    <Navbar v-if="!$route.meta.hideNavbar" />
     <router-view />
   </div>
 </template>
