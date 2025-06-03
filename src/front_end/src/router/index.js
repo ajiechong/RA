@@ -91,7 +91,7 @@ const routes = [
     path: '/collection',
     name: 'MyCollection',
     component: MyCollection,
-    //meta:{hideNavbar:true}
+    meta:{hideNavbar:true}
   },
   {
     path: '/search',

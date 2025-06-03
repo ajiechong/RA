@@ -2,6 +2,7 @@ package org.example.researchassistant.dao.impl;
 
 import org.example.researchassistant.dao.ChatHistoryDao;
 import org.example.researchassistant.domain.ChatHistory;
+import org.example.researchassistant.service.FileService;
 import org.example.researchassistant.utils.JDBCUtils;
 
 import java.sql.Connection;
@@ -12,10 +13,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;  // 添加这个导入
 
 @Repository
 public class ChatHistoryDaoImpl implements ChatHistoryDao {
+
 
     @Override
     public List<ChatHistory> getAllChatHistory() {

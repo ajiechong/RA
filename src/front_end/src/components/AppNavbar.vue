@@ -1,6 +1,5 @@
 <template>
   <div class="app-nav-bar">
-
     <div class="user-avatar-container"
          @click="isLoggedIn ? goToProfile() : showLoginModal()"
          @mouseover="isLoggedIn && (avatarHover = true, isDropdownVisible = true)"
@@ -81,13 +80,11 @@
         </div>
       </div>
     </div>
-
     <!-- 欢迎信息 -->
     <div class="welcome">
       <h1>Welcome to Research Assistant</h1>
       <p>Your AI-powered research companion</p>
     </div>
-
     <!-- 功能导航 -->
     <div class="tabs">
       <button class="tab" :class="{ active: $route.name === 'home' }" @click="goTo('home')">Home</button>
