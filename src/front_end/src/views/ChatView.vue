@@ -18,7 +18,7 @@
       <div class="p-4 border-t border-gray-200">
         <button
             @click="createNewChat"
-            class="w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all"
+            class="mx-auto w-full flex items-center justify-center py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all"
         >
           <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -125,6 +125,9 @@
               v-for="chat in chatSessions"
               :key="chat.cid"
               class="flex items-center justify-between bg-transparent hover:bg-gray-100 rounded-lg p-3 transition-colors duration-200"
+              :style="{
+      'background-color': currentCid === chat.cid ? '#cbe2ef' : '#e8e9ea'
+    }"
           >
               <!-- 聊天名称 -->
               <button
@@ -135,7 +138,7 @@
                   <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
                   <path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4"></path>
                 </svg>
-                <span :class="{'text-blue-500 font-semibold': currentCid === chat.cid}">
+                <span :class="{'text-black-500 font-semibold': currentCid === chat.cid}">
                 {{ chat.hname || '新对话' }}
               </span>
               </button>
@@ -292,7 +295,7 @@
               />
               <div
                   v-else
-                  class="px-3 py-3 rounded-lg bg-white text-gray-800 rounded-tl-none mr-auto message-content"
+                  class="px-1 py-1 rounded-lg text-gray-800 rounded-tl-none mr-auto message-content"
                   v-html="parseMarkdown(msg.content)"
               ></div>
             </template>
@@ -1032,6 +1035,7 @@ html, body {
 }
 
 .content-section {
+  margin-top: 10px;
   margin-left: 135px;
   display: flex;
   padding: 1rem;
@@ -1043,9 +1047,11 @@ html, body {
 
 /* 左侧历史对话栏 */
 .history-section {
-  background: rgba(255, 255, 255, 0.1); /* 透明背景 */
+  border-radius: 8px;
+  background: #f4f4f4;
+  color: black;   /* 字体颜色 */
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   width: 260px;
 }
 
@@ -1054,12 +1060,11 @@ html, body {
 .history-section .chat-item {
   @apply px-4 py-3 transition-all rounded-xl;
   margin: 0 8px;
-  background: transparent; /* 默认透明 */
   border: 1px solid transparent; /* 点击时显示边框 */
 }
 
 .history-section .chat-item:hover {
-  background: rgba(75, 123, 236, 0.05); /* 悬停浅色背景 */
+  background: #b8dced; /* 悬停浅色背景 */
 }
 
 .history-section .selected {
@@ -1074,12 +1079,13 @@ html, body {
 
 /* 菜单样式 */
 .history-section .absolute {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+ }
 
 /* 新建按钮样式 */
 .history-section .bg-blue-600 {
   box-shadow: 0 2px 4px rgba(75, 123, 236, 0.2);
+  background-color: #3574ab;
 }
 
 /* 中间聊天区域 */
@@ -1165,23 +1171,24 @@ html, body {
 }
 
 .sidebar-content {
+  margin-top: 0.5rem;
   display: flex;
   flex-direction: column; /* 改为垂直布局 */
-  margin-left: 1.5rem;
-  gap: 0.8rem; /* 调整间距 */
+  margin-left: 1rem;
+  gap: 1rem; /* 调整间距 */
 }
 
 .sidebar-item {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(219, 218, 218, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 1rem;
   border-radius: 8px;
-  width: 80%; /* 宽度改为100%以填满容器 */
+  width: 75%; /* 宽度改为100%以填满容器 */
   color: white;
   text-align: center;
   backdrop-filter: blur(6px);
   transition: transform 0.3s ease;
-  height: 50px; /* 高度自动调整 */
+  height: 55px; /* 高度自动调整 */
   display: flex;
   justify-content: center;
   align-items: center;

@@ -7,7 +7,7 @@
     <div class="features">
       <div class="feature-card">
         <h3>文献搜索</h3>
-        <p>根据关键词搜索科研论文，提供快速高效的检索。</p>
+        <p>根据关键词搜索文献，提供快速高效的检索。</p>
       </div>
       <div class="feature-card">
         <h3>文献推荐</h3>

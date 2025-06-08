@@ -658,7 +658,6 @@ watch(messages, async () => {
   background-repeat: no-repeat;
 }
 
-
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
