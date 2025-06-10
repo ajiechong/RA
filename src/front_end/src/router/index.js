@@ -99,6 +99,11 @@ const routes = [
     component: SearchPage,
     props: (route) => ({ query: route.query.q }), // 将路由参数作为 props 传递
   },
+  {
+    path: '/paper/:id',
+    name: 'PaperDetail',
+    component: () => import('@/views/PaperDetail.vue')  // 根据你的项目路径调整
+  },
   // Catch-all route for any other paths that are not APIs
   {
     path: '/:catchAll(.*)',

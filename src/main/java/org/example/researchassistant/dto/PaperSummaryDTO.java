@@ -8,4 +8,5 @@ public class PaperSummaryDTO {
     private String title;
     private String authors;
     private String submissionDate;
+    private String pdfLink;
 }

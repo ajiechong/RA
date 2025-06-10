@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/papers")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 public class PaperController {
 
     @Autowired
@@ -59,7 +59,7 @@ public class PaperController {
             @RequestParam(defaultValue = "10") Integer pageSize) {
 
         QueryWrapper<Paper> wrapper = new QueryWrapper<>();
-        wrapper.like("title", keyword);
+        wrapper.and(w -> w.like("title", keyword));
 
         Page<Paper> paperPage = paperService.page(new Page<>(pageNum, pageSize), wrapper);
 
@@ -72,6 +72,7 @@ public class PaperController {
             dto.setTitle(p.getTitle());
             dto.setAuthors(p.getAuthors());
             dto.setSubmissionDate(p.getSubmissionDate());
+            dto.setPdfLink(p.getPdfLink());
             return dto;
         }).collect(Collectors.toList());
 

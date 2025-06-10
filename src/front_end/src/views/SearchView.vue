@@ -1,16 +1,23 @@
 <template>
   <div class="content-section">
     <div class="search-box">
-      <input type="text" v-model="searchQuery" placeholder="请输入关键词：" />
-      <button @click="performSearch()">搜 索</button>
+      <input type="text" v-model="searchQuery" placeholder="请输入关键词："  />
+      <button @click="handleSearch()">搜 索</button>
     </div>
     <div class="search-results">
       <p v-if="searchResults.length === 0 && searchPerformed">无相关结果</p>
       <div class="results-grid" v-else>
-        <div class="paper-card" v-for="(result, index) in searchResults" :key="index">
+        <router-link
+            class="paper-card"
+            v-for="(result, index) in searchResults"
+            :key="index"
+            :to="{ name: 'PaperDetail', params: { id: result.paperId } }"
+            role="link"
+            tabindex="0"
+        >
           <h3>{{ result.title }}</h3>
-          <p class="meta">{{ result.authors }} · {{ formatDate(result.submissionDate) }}</p>
-        </div>
+          <p class="meta">{{ result.authors }} <br> {{ result.submissionDate }}</p>
+        </router-link>
       </div>
     </div>
   </div>
@@ -28,7 +35,39 @@ export default {
       searchPerformed: false,
     };
   },
+
+  // 监听路由参数变化
+  watch: {
+    '$route.query.keyword': {
+      immediate: true,
+      handler(newKeyword) {
+        if (newKeyword) {
+          this.searchQuery = newKeyword;
+          this.performSearch();  // 自动触发搜索
+        } else {
+          this.searchResults = [];
+          this.searchPerformed = false;
+        }
+      }
+    }
+  },
+
   methods: {
+    handleSearch() {
+      const trimmed = this.searchQuery.trim();
+      if (!trimmed) {
+        this.searchResults = [];
+        this.searchPerformed = true;
+        return;
+      }
+
+      // 更新路由 query 参数（触发 watch）
+      this.$router.push({
+        name: 'search',
+        query: { keyword: trimmed }
+      });
+    },
+
     performSearch(pageNum = 1) {
       if (!this.searchQuery.trim()) {
         this.searchResults = [];
@@ -37,10 +76,10 @@ export default {
       }
 
       axios
-          .get('http://localhost:8080/papers/search', {
+          .get('http://localhost:8082/papers/search', {
             params: {
               keyword: this.searchQuery,
-              pageNum: pageNum,
+              pageNum,
               pageSize: 10,
             },
           })
@@ -52,15 +91,15 @@ export default {
             console.error('搜索失败:', error);
             this.searchResults = [];
             this.searchPerformed = true;
+            if (error.response) {
+              console.error('错误详情:', error.response.data);
+            }
           });
     },
-    formatDate(dateStr) {
-      const date = new Date(dateStr);
-      return date.toISOString().split('T')[0];
-    },
-  },
+  }
 };
 </script>
+
 
 <style scoped>
 .content-section {
@@ -83,6 +122,7 @@ export default {
   margin-right: 10px;
   border-radius: 8px;
   border: 1px solid #ddd;
+  color: black;
 }
 
 .search-box button {
@@ -116,6 +156,15 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 40%;
   min-width: 300px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.paper-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .paper-card h3 {
