@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,20 @@ public class FileController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "文件上传成功");
+
+            // 根据文件类型给出不同的提示消息
+            String fileType = getFileExtension(file.getOriginalFilename()).toLowerCase();
+            String message;
+
+            if (Arrays.asList("jpg", "jpeg", "png", "gif", "bmp").contains(fileType)) {
+                message = "图片上传成功，正在使用AI智能识别内容";
+            } else if (Arrays.asList("pdf", "docx", "doc").contains(fileType)) {
+                message = "文档上传成功，正在使用AI智能分析内容";
+            } else {
+                message = "文件上传成功";
+            }
+
+            response.put("message", message);
             response.put("data", fileAttachment);
 
             return ResponseEntity.ok(response);
@@ -56,6 +70,71 @@ public class FileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
+
+    @GetMapping("/{fid}/status")
+    public ResponseEntity<?> getFileParseStatus(@PathVariable Integer fid) {
+        try {
+            FileAttachment file = fileService.getFileById(fid);
+            if (file == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "文件不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            Map<String, Object> status = new HashMap<>();
+            String extractedText = file.getExtractedText();
+
+            if (extractedText == null || extractedText.trim().isEmpty()) {
+                status.put("status", "pending");
+                status.put("message", "等待解析");
+            } else if (extractedText.contains("正在使用AI解析") || extractedText.contains("正在AI解析中")) {
+                status.put("status", "processing");
+                status.put("message", "正在AI解析中");
+            } else if (extractedText.contains("解析失败") || extractedText.contains("AI增强失败")) {
+                status.put("status", "failed");
+                status.put("message", "解析失败");
+            } else {
+                status.put("status", "completed");
+                status.put("message", "解析完成");
+                status.put("hasContent", true);
+            }
+
+            status.put("fileInfo", file);
+            return ResponseEntity.ok(status);
+
+        } catch (Exception e) {
+            logger.error("获取文件解析状态失败", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "获取文件状态失败");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @GetMapping("/supported-types")
+    public ResponseEntity<?> getSupportedTypes() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("types", Arrays.asList("pdf", "docx", "doc", "txt", "jpg", "jpeg", "png", "gif", "bmp"));
+        response.put("maxSize", "50MB");
+        response.put("features", Arrays.asList(
+                "AI智能解析文档内容",
+                "图片文字识别(OCR)",
+                "文档结构分析",
+                "内容摘要生成"
+        ));
+
+        return ResponseEntity.ok(response);
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName == null || !fileName.contains(".")) {
+            return "";
+        }
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
+
 
     /**
      * 获取会话的所有文件

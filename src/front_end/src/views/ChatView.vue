@@ -32,6 +32,7 @@
 
           <!-- 收藏对话标题和折叠按钮 -->
           <div
+              v-if="isLoggedIn"
               class="px-6 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-100 rounded-lg"
               @click="toggleFavoriteList"
           >
@@ -47,7 +48,7 @@
           </div>
 
           <!-- 收藏对话列表 -->
-          <div v-show="!isFavoriteListCollapsed" class="space-y-3 px-4">
+          <div v-show="isLoggedIn && !isFavoriteListCollapsed" class="space-y-3 px-4">
             <div
                 v-for="chat in favoriteChatSessions"
                 :key="'fav-' + chat.cid"
@@ -103,7 +104,7 @@
           </div>
 
           <!-- 在这里添加分隔线 -->
-          <div class="h-px bg-gray-200 mx-4 my-4"></div>
+          <div v-if="isLoggedIn" class="h-px bg-gray-200 mx-4 my-4"></div>
 
         <!-- 最近对话标题和折叠按钮 -->
         <div
@@ -168,21 +169,33 @@
                     </button>
 
                     <!-- 新增收藏按钮 -->
-                    <button
-                        @click="favoriteChat(selectedChat)"
-                        v-if="!isChatFavorited(selectedChat?.cid)"
-                        class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                    >
-                      收藏
-                    </button>
+                    <template v-if="isLoggedIn">
+                      <button
+                          @click="favoriteChat(selectedChat)"
+                          v-if="!isChatFavorited(selectedChat?.cid)"
+                          class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        收藏
+                      </button>
 
-                    <!-- 如果已收藏，显示取消收藏按钮 -->
+                      <!-- 如果已收藏，显示取消收藏按钮 -->
+                      <button
+                          @click="unfavoriteChat(selectedChat)"
+                          v-else
+                          class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        取消收藏
+                      </button>
+                    </template>
+
+                    <!-- 未登录时显示提示按钮 -->
                     <button
-                        @click="unfavoriteChat(selectedChat)"
                         v-else
-                        class="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                        @click.stop="showLoginPrompt"
+                        class="block w-full px-4 py-2 text-sm text-gray-500 hover:bg-gray-50"
+                        disabled
                     >
-                      取消收藏
+                      收藏 (需登录)
                     </button>
 
                     <button
@@ -319,60 +332,89 @@
 
         <!-- 在输入区域前添加文件预览区域 -->
         <div v-if="uploadedFiles.length > 0" class="file-preview-area">
-          <div class="file-preview-header">
-            <span>已上传文件 ({{ uploadedFiles.length }})</span>
-            <button @click="clearAllFiles" class="clear-all-btn">清空所有</button>
-          </div>
-          <div class="file-preview-list">
-            <div v-for="file in uploadedFiles" :key="file.fid" class="preview-file-item">
-              <i :class="getFileIcon(file.fileType)" class="file-icon"></i>
-              <div class="file-details">
-                <span class="file-name">{{ file.fileName }}</span>
-                <span class="file-info">{{ file.fileType.toUpperCase() }} • {{ formatFileSize(file.fileSize) }}</span>
+        <div class="file-preview-header">
+          <span>已上传文件 ({{ uploadedFiles.length }})</span>
+          <button @click="clearAllFiles" class="clear-all-btn">清空所有</button>
+        </div>
+        <div class="file-preview-list">
+          <div v-for="file in uploadedFiles" :key="file.fid" class="preview-file-item">
+            <i :class="getFileIcon(file.fileType)" class="file-icon"></i>
+            <div class="file-details">
+              <span class="file-name">{{ file.fileName }}</span>
+              <span class="file-info">{{ file.fileType.toUpperCase() }} • {{ formatFileSize(file.fileSize) }}</span>
+
+              <!-- 新增：AI解析状态显示 -->
+              <div v-if="fileParseStatus[file.fid]" class="parse-status">
+          <span
+              :class="{
+              'text-blue-600': fileParseStatus[file.fid].status === 'processing',
+              'text-green-600': fileParseStatus[file.fid].status === 'completed',
+              'text-red-600': fileParseStatus[file.fid].status === 'failed'
+            }"
+              class="status-text"
+          >
+            {{ fileParseStatus[file.fid].message }}
+          </span>
+                <!-- 处理中时显示加载动画 -->
+                <div v-if="fileParseStatus[file.fid].status === 'processing'" class="loading-spinner"></div>
               </div>
-              <button @click="removeUploadedFile(file.fid)" class="remove-btn">删除</button>
             </div>
+            <button @click="removeUploadedFile(file.fid)" class="remove-btn">删除</button>
           </div>
         </div>
+      </div>
 
 
         <!--   底部输入区域-->
         <div class="chat-input">
-          <!-- 文件上传按钮 -->
-          <div class="file-upload-wrapper">
+
+          <div v-if="supportedFileTypes.length > 0" class="file-types-hint">
+            <small class="text-gray-500">
+              💡 支持格式: {{ supportedFileTypes.join(', ') }} (AI智能解析)
+            </small>
+          </div>
+
+          <div class="input-row">
+            <!-- 文件上传按钮 -->
+            <div class="file-upload-wrapper">
+              <input
+                  ref="fileInput"
+                  type="file"
+                  @change="handleFileUpload"
+                  multiple
+                  accept=".pdf,.docx,.doc,.txt,.jpg,.jpeg,.png,.gif,.bmp,.webp"
+                  style="display: none"
+              />
+              <button
+                  @click="$refs.fileInput.click()"
+                  class="file-upload-btn"
+                  :disabled="isLoading || isTyping || isUploading"
+                  :title="isUploading ? '正在上传文件...' : '上传文件 (支持PDF、Word、图片等格式，AI智能解析)'"
+              >
+                <!-- 根据状态显示不同图标 -->
+                <svg v-if="!isUploading" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+                <div v-else class="upload-spinner"></div>
+              </button>
+            </div>
             <input
-                ref="fileInput"
-                type="file"
-                @change="handleFileUpload"
-                multiple
-                accept=".pdf,.docx,.doc,.txt,.jpg,.jpeg,.png,.gif,.bmp"
-                style="display: none"
-            />
-            <button
-                @click="$refs.fileInput.click()"
-                class="file-upload-btn"
+                v-model="inputMessage"
+                type="text"
+                placeholder="输入消息..."
+                @keyup.enter="sendMessage"
                 :disabled="isLoading || isTyping"
-                title="上传文件"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-              </svg>
+            <button
+                @click="sendMessage"
+                :disabled="!inputMessage.trim() || isLoading || isTyping"
+            >
+              发送
             </button>
           </div>
-          <input
-              v-model="inputMessage"
-              type="text"
-              placeholder="输入消息..."
-              @keyup.enter="sendMessage"
-              :disabled="isLoading || isTyping"
-          >
-          <button
-              @click="sendMessage"
-              :disabled="!inputMessage.trim() || isLoading || isTyping"
-          >
-            发送
-          </button>
+
+
         </div>
       </div>
 
@@ -402,6 +444,8 @@ import { API_BASE_URL } from '@/utils/api';
 import TypingMessage from '@/components/TypingMessage.vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import store from "@/store";
+import router from "@/router";
 
 // 状态定义
 // const router = useRouter()
@@ -428,11 +472,14 @@ const isChatListCollapsed = ref(false)
 const favoriteChatSessions = ref([])  // 收藏的对话列表
 const isFavoriteListCollapsed = ref(false)  // 收藏对话折叠状态
 
+const fileParseStatus = ref({})  // 文件解析状态
+const supportedFileTypes = ref([])  // 支持的文件类型
+
 // 从本地存储获取用户ID，实际应用中应该从用户认证系统获取
-// const uid = ref(store.state.isLoggedIn ? parseInt(store.getters.uid) : null)
+ const uid = ref(store.state.isLoggedIn ? parseInt(store.getters.uid) : null)
 
 //测试使用固定的uid
-const uid = ref(1);
+//const uid = ref(1);
 const activeFavoriteMenu = ref(null)
 
 // API 基础URL
@@ -466,6 +513,8 @@ onMounted(async () => {
   //   return;
   // }
   await loadChatSessions();
+  await loadFavoriteChatSessions();
+  await loadSupportedFileTypes();
 });
 
 // 菜单相关方法
@@ -474,6 +523,43 @@ const openMenu = (chat) => {
   selectedChat.value = chat;
   activeMenu.value = activeMenu.value === chat.cid ? null : chat.cid;
 };
+
+
+
+// 1. 显示登录提示
+const showLoginPrompt = () => {
+  alert("请先登录后再使用收藏功能");
+  // 可选：跳转到登录页面
+  // router.push('/login');
+  activeMenu.value = null;
+};
+
+// 2. 添加计算属性（确保在 script setup 中正确定义）
+import { computed } from 'vue'
+const isLoggedIn = computed(() => store.state.isLoggedIn);
+
+// 3. 如果你想要更友好的UI体验，可以添加一个登录状态的监听
+watch(() => store.state.isLoggedIn, async (newValue) => {
+  if (newValue) {
+    // 用户刚登录，重新加载收藏列表
+    await loadFavoriteChatSessions();
+  } else {
+    // 用户退出登录，清空收藏列表
+    favoriteChatSessions.value = [];
+  }
+});
+
+
+
+
+// 6. 添加登录状态变化时的uid更新
+watch(() => store.state.isLoggedIn, (newValue) => {
+  if (newValue) {
+    uid.value = parseInt(store.getters.uid);
+  } else {
+    uid.value = null;
+  }
+});
 
 
 
@@ -517,20 +603,27 @@ const confirmRename = async () => {
       newName: newChatName.value.trim()
     });
 
-    // 更新本地数据（使用不可变更新避免响应式问题）
+    const newName = newChatName.value.trim();
+
+    // 1. 更新最近对话列表
     chatSessions.value = chatSessions.value.map(chat =>
-        chat.cid === selectedChat.value.cid ? { ...chat, hname: newChatName.value.trim() } : chat
+        chat.cid === selectedChat.value.cid ? { ...chat, hname: newName } : chat
     );
 
-    // 更新当前对话名称
+    // 2. 同时更新收藏对话列表（如果该对话已被收藏）
+    favoriteChatSessions.value = favoriteChatSessions.value.map(chat =>
+        chat.cid === selectedChat.value.cid ? { ...chat, hname: newName } : chat
+    );
+
+    // 3. 更新当前对话名称（如果正在查看该对话）
     if (currentCid.value === selectedChat.value.cid) {
-      messages.value = messages.value.map(msg => ({ ...msg, hname: newChatName.value.trim() }));
+      messages.value = messages.value.map(msg => ({ ...msg, hname: newName }));
     }
 
     cancelRename();
   } catch (error) {
     console.error('重命名失败:', error);
-    // 添加错误提示逻辑
+    alert('重命名失败，请稍后重试');
   }
 };
 
@@ -616,6 +709,13 @@ axios.interceptors.response.use(
 
 // 加载收藏的对话
 async function loadFavoriteChatSessions() {
+
+  // 如果未登录，直接返回空数组
+  if (!store.state.isLoggedIn || !uid.value) {
+    favoriteChatSessions.value = [];
+    return;
+  }
+
   try {
     const response = await axios.get(`${API_BASE_URL0}/favorites/${uid.value}`);
     favoriteChatSessions.value = response.data.map(session => ({
@@ -632,6 +732,14 @@ async function loadFavoriteChatSessions() {
 
 // 收藏对话 - 修复null引用问题
 const favoriteChat = async (chat) => {
+
+  if (!store.state.isLoggedIn || !uid.value) {
+    alert("请先登录后再使用收藏功能");
+    // 可以选择跳转到登录页面
+    // router.push('/login');
+    return;
+  }
+
   // 确保chat对象存在
   if (!chat || !chat.cid) {
     console.error('Chat object is null or missing cid');
@@ -662,6 +770,13 @@ const favoriteChat = async (chat) => {
 
 // 取消收藏 - 修复null引用问题
 const unfavoriteChat = async (chat) => {
+
+  // 首先检查是否登录
+  if (!store.state.isLoggedIn || !uid.value) {
+    alert("请先登录后再使用收藏功能");
+    return;
+  }
+
   // 确保chat对象存在
   if (!chat || !chat.cid) {
     console.error('Chat object is null or missing cid');
@@ -694,14 +809,22 @@ const toggleFavoriteList = () => {
 
 // 检查对话是否已收藏
 const isChatFavorited = (cid) => {
-  if (!cid) return false;
+  if (!store.state.isLoggedIn || !uid.value || !cid) return false;
   return favoriteChatSessions.value.some(chat => chat.cid === cid);
 };
 
 // 修改 onMounted 函数，添加加载收藏对话
 onMounted(async () => {
+  // 检查登录状态
+  if (!store.state.isLoggedIn) {
+    alert("请先登录后再使用聊天功能");
+    router.push('/');
+    return;
+  }
+
   await loadChatSessions();
-  await loadFavoriteChatSessions();  // 新增这行
+  await loadFavoriteChatSessions();  // 这里会自动检查登录状态
+  await loadSupportedFileTypes();
 });
 
 
@@ -778,9 +901,17 @@ async function selectChat(cid) {
 }
 
 
-
 // 发送消息
 async function sendMessage() {
+
+  // 恢复登录检查
+  if (!store.state.isLoggedIn) {
+    alert("请先登录后再发送消息");
+    return;
+  }
+
+  if (!inputMessage.value.trim() || isLoading.value) return;
+
   ///////   ignore log
   // if (!store.state.isLoggedIn) {
   //   alert("请先登录后再发送消息");
@@ -919,13 +1050,33 @@ const handleFileUpload = async (event) => {
 
   try {
     for (const file of files) {
+      console.log(`开始上传文件: ${file.name}`)
       await uploadSingleFile(file)
+
+      // 为需要AI解析的文件显示友好提示
+      if (needsAIParsing(file.name)) {
+        const fileType = file.name.split('.').pop().toLowerCase()
+        let message = ''
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileType)) {
+          message = `图片 "${file.name}" 上传成功，正在使用AI智能识别内容...`
+        } else if (['pdf', 'docx', 'doc'].includes(fileType)) {
+          message = `文档 "${file.name}" 上传成功，正在使用AI智能分析内容...`
+        }
+
+        if (message) {
+          showNotification(message, 'info')
+        }
+      }
     }
+
     event.target.value = ''
     await loadSessionFiles()
+    showNotification(`成功上传 ${files.length} 个文件`, 'success')
+
   } catch (error) {
     console.error('文件上传失败:', error)
-    alert('文件上传失败，请重试')
+    showNotification('文件上传失败: ' + error.message, 'error')
   } finally {
     isUploading.value = false
   }
@@ -936,7 +1087,7 @@ const uploadSingleFile = async (file) => {
     throw new Error(`文件 ${file.name} 超过50MB限制`)
   }
 
-  const allowedTypes = ['pdf', 'docx', 'doc', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp']
+  const allowedTypes = ['pdf', 'docx', 'doc', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
   const fileType = file.name.split('.').pop().toLowerCase()
   if (!allowedTypes.includes(fileType)) {
     throw new Error(`不支持的文件类型: ${fileType}`)
@@ -957,8 +1108,108 @@ const uploadSingleFile = async (file) => {
     throw new Error(response.data.message || '上传失败')
   }
 
-  return response.data.data
+  const fileData = response.data.data
+
+  // 如果是需要AI解析的文件类型，开始轮询解析状态
+  if (needsAIParsing(file.name)) {
+    console.log(response.data.message) // 显示AI解析提示
+    startParseStatusPolling(fileData.fid)
+  }
+
+  return fileData
 }
+
+const needsAIParsing = (fileName) => {
+  const extension = fileName.split('.').pop().toLowerCase()
+  const aiTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'pdf', 'docx', 'doc']
+  return aiTypes.includes(extension)
+}
+
+const startParseStatusPolling = (fid) => {
+  // 设置初始状态
+  fileParseStatus.value[fid] = {
+    status: 'processing',
+    message: '正在AI解析中...'
+  }
+
+  const poll = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/files/${fid}/status`)
+      const status = response.data
+
+      fileParseStatus.value[fid] = {
+        status: status.status,
+        message: status.message
+      }
+
+      if (status.status === 'completed') {
+        console.log(`文件 ${fid} AI解析完成！`)
+        // 可以在这里显示通知或更新UI
+        showNotification('文件AI解析完成', 'success')
+        // 刷新文件列表以获取最新内容
+        await loadSessionFiles()
+      } else if (status.status === 'failed') {
+        console.log(`文件 ${fid} AI解析失败`)
+        showNotification('文件AI解析失败', 'error')
+      } else if (status.status === 'processing') {
+        // 继续轮询
+        setTimeout(poll, 3000) // 3秒后再次检查
+      }
+    } catch (error) {
+      console.error('获取解析状态失败:', error)
+      fileParseStatus.value[fid] = {
+        status: 'error',
+        message: '状态获取失败'
+      }
+    }
+  }
+
+  // 延迟2秒开始轮询，给服务器一些处理时间
+  setTimeout(poll, 2000)
+}
+
+const showNotification = (message, type = 'info') => {
+  // 你可以使用现有的通知系统，或者简单的alert
+  // 这里提供一个简单的实现
+  const notification = document.createElement('div')
+  notification.className = `notification ${type}`
+  notification.textContent = message
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    ${type === 'success' ? 'background: #10b981;' :
+      type === 'error' ? 'background: #ef4444;' :
+          'background: #3b82f6;'}
+  `
+
+  document.body.appendChild(notification)
+
+  setTimeout(() => {
+    notification.style.opacity = '0'
+    setTimeout(() => {
+      document.body.removeChild(notification)
+    }, 300)
+  }, 3000)
+}
+
+const loadSupportedFileTypes = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/files/supported-types`)
+    supportedFileTypes.value = response.data.types
+    console.log('支持的文件类型:', response.data.types)
+    console.log('AI功能:', response.data.features)
+  } catch (error) {
+    console.error('获取支持类型失败:', error)
+  }
+}
+
 
 const loadSessionFiles = async () => {
   if (!currentCid.value) return
@@ -1040,7 +1291,7 @@ html, body {
   display: flex;
   padding: 1rem;
   gap: 1rem;
-  height: calc(100vh - 200px); /* 除去 AppNavBar 高度 */
+  height: calc(100vh - 100px); /* 除去 AppNavBar 高度 */
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -1053,14 +1304,16 @@ html, body {
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.2);
   width: 260px;
+  overflow: hidden;
+  height: 100%;
 }
-
 
 /* 对话列表项样式 */
 .history-section .chat-item {
   @apply px-4 py-3 transition-all rounded-xl;
   margin: 0 8px;
   border: 1px solid transparent; /* 点击时显示边框 */
+
 }
 
 .history-section .chat-item:hover {
@@ -1132,10 +1385,10 @@ html, body {
 /* 发送框样式 */
 .chat-input {
   display: flex;
+  flex-direction: column; /* 改为垂直布局 */
   padding: 1rem;
   background-color: white;
   border-top: 1px solid #eee;
-  justify-content: center;
 }
 
 .chat-input input {
@@ -1159,6 +1412,7 @@ html, body {
 
 /* 右侧额外内容区域 */
 .sidebar {
+  margin-top: 55px;
   width: 20%;
   /* 移除背景和边框等 */
   height: 90%;
@@ -1188,7 +1442,7 @@ html, body {
   text-align: center;
   backdrop-filter: blur(6px);
   transition: transform 0.3s ease;
-  height: 55px; /* 高度自动调整 */
+  height: 68px; /* 高度自动调整 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1345,6 +1599,120 @@ input[type="text"] {
   border: none;
   border-radius: 3px;
   cursor: pointer;
+}
+
+.parse-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.status-text {
+  font-weight: 500;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.upload-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 通知样式 */
+.notification {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateX(100%);
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 文件上传按钮增强样式 */
+.file-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.file-upload-btn.uploading {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* 文件预览项增强 */
+.preview-file-item {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.preview-file-item:hover {
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 解析状态指示器 */
+.parse-status .text-blue-600 {
+  color: #2563eb;
+}
+
+.parse-status .text-green-600 {
+  color: #16a34a;
+}
+
+.parse-status .text-red-600 {
+  color: #dc2626;
+}
+
+/* 文件类型提示样式 */
+.file-types-hint {
+  padding: 0.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .file-preview-area {
+    margin: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .preview-file-item {
+    padding: 0.75rem;
+  }
+
+  .file-details {
+    font-size: 0.9rem;
+  }
+}
+
+.input-row {
+  display: flex; /* 保持原来的水平布局 */
+  align-items: center;
 }
 
 </style>

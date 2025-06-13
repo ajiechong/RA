@@ -61,7 +61,8 @@ export default {
         params: {
           pageNum: this.currentPage,
           pageSize: this.pageSize
-        }
+        },
+        timeout: 30000
       })
           .then(response => {
             const data = response.data;

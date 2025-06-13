@@ -9,6 +9,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.example.researchassistant.dao.FileAttachmentDao;
 import org.example.researchassistant.domain.FileAttachment;
+import org.example.researchassistant.service.AIService;
 import org.example.researchassistant.service.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,9 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private FileAttachmentDao fileAttachmentDao;
 
+    @Autowired
+    private AIService aiService;
+
     @Value("${aliyun.oss.endpoint}")
     private String endpoint;
 
@@ -51,7 +55,7 @@ public class FileServiceImpl implements FileService {
 
     // 支持的文件类型
     private static final List<String> SUPPORTED_TYPES = Arrays.asList(
-            "pdf", "docx", "doc", "txt", "jpg", "jpeg", "png", "gif", "bmp"
+            "pdf", "docx", "doc", "txt", "jpg", "jpeg", "png", "gif", "bmp", "webp"
     );
 
     @Override
@@ -103,6 +107,9 @@ public class FileServiceImpl implements FileService {
             }
 
             logger.info("文件上传完成: {}", file.getOriginalFilename());
+
+            enhanceFileContentWithAI(fileAttachment);
+
             return fileAttachment;
 
         } catch (Exception e) {
@@ -233,28 +240,95 @@ public class FileServiceImpl implements FileService {
 
             logger.info("开始提取文件文本，文件类型: {}, 文件名: {}", extension, file.getOriginalFilename());
 
+            String basicText = "";
+
             switch (extension) {
                 case "pdf":
-                    return extractTextFromPdf(file);
+                    basicText = extractTextFromPdf(file);
+                    break;
                 case "docx":
-                    return extractTextFromDocx(file);
+                    basicText = extractTextFromDocx(file);
+                    break;
                 case "doc":
-                    return extractTextFromDoc(file);
+                    basicText = extractTextFromDoc(file);
+                    break;
                 case "txt":
-                    return new String(file.getBytes(), "UTF-8");
+                    basicText = new String(file.getBytes(), "UTF-8");
+                    break;
                 case "jpg":
                 case "jpeg":
                 case "png":
                 case "gif":
                 case "bmp":
-                    return extractTextFromImage(file);
+                    // 对于图片，直接使用AI解析
+                    return "图片文件，正在使用AI解析中..."; // 先返回占位符
                 default:
                     return "无法提取此文件类型的文本内容";
             }
+
+            // 如果基础提取成功，返回基础文本
+            if (basicText != null && !basicText.trim().isEmpty() && !basicText.contains("提取失败")) {
+                return basicText;
+            } else {
+                return "文本提取失败: 无法读取文件内容";
+            }
+
         } catch (Exception e) {
             logger.error("文本提取失败，文件: {}, 错误: {}", file.getOriginalFilename(), e.getMessage(), e);
             return "文本提取失败: " + e.getMessage();
         }
+    }
+
+    private void enhanceFileContentWithAI(FileAttachment fileAttachment) {
+        // 在新线程中执行AI增强，避免阻塞上传响应
+        new Thread(() -> {
+            try {
+                logger.info("开始AI增强文件内容，文件ID: {}", fileAttachment.getFid());
+
+                String fileType = fileAttachment.getFileType().toLowerCase();
+                String enhancedContent = null;
+
+                // 根据文件类型选择不同的AI处理方式
+                switch (fileType) {
+                    case "jpg":
+                    case "jpeg":
+                    case "png":
+                    case "gif":
+                    case "bmp":
+                        // 图片文件使用AI图像解析
+                        enhancedContent = aiService.parseImageWithQwen(fileAttachment.getOssUrl());
+                        break;
+                    case "pdf":
+                    case "docx":
+                    case "doc":
+                    case "txt":
+                        // 文档文件使用AI文档分析
+                        enhancedContent = aiService.parseFileWithQwen(fileAttachment);
+                        break;
+                    default:
+                        enhancedContent = fileAttachment.getExtractedText(); // 保持原内容
+                }
+
+                if (enhancedContent != null) {
+                    // 更新数据库中的文件内容
+                    fileAttachment.setExtractedText(enhancedContent);
+                    fileAttachmentDao.updateFileAttachment(fileAttachment);
+                    logger.info("AI内容增强完成，文件ID: {}", fileAttachment.getFid());
+                }
+
+            } catch (Exception e) {
+                logger.error("AI内容增强失败，文件ID: {}", fileAttachment.getFid(), e);
+                try {
+                    // 更新为错误状态，但保留原有内容
+                    String originalContent = fileAttachment.getExtractedText();
+                    String errorContent = originalContent + "\n\n[AI增强失败: " + e.getMessage() + "]";
+                    fileAttachment.setExtractedText(errorContent);
+                    fileAttachmentDao.updateFileAttachment(fileAttachment);
+                } catch (Exception updateException) {
+                    logger.error("更新文件错误状态失败", updateException);
+                }
+            }
+        }).start();
     }
 
     /**
