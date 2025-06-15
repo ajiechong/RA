@@ -90,9 +90,11 @@
       <button class="tab" :class="{ active: $route.name === 'home' }" @click="goTo('home')">Home</button>
       <button class="tab" :class="{ active: $route.name === 'search' }" @click="goTo('search')">Search</button>
       <button class="tab" :class="{ active: $route.name === 'recommend' }" @click="goTo('recommend')">Recommend</button>
-      <button class="tab" :class="{ active: $route.name === 'chat' }" @click="goTo('chat')">Chat</button>
       <button class="tab" :class="{ active: $route.name === 'VideoResourcePage' }" @click="goTo('VideoResourcePage')">Video</button>
       <button class="tab" :class="{ active: $route.name === 'ArticleResourcePage' }" @click="goTo('ArticleResourcePage')">Article</button>
+      <button class="tab" :class="{ active: $route.name === 'chat' }" @click="goTo('chat')">Chat</button>
+      <button class="tab" :class="{ active: $route.name === 'MultiagentPage' }" @click="goTo('MultiagentPage')">MultiAgent</button>
+
     </div>
   </div>
 

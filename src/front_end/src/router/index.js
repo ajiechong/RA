@@ -17,6 +17,7 @@ import MyCollection from '@/views/MyCollection.vue';
 import axios from "axios";
 import store from "@/store";
 import SearchPage from '@/views/SearchPage.vue';
+import MultiagentView from '@/views/MultiagentView.vue';
 
 
 const routes = [
@@ -39,6 +40,11 @@ const routes = [
     path: '/chat',
     name: 'chat',
     component: ChatView
+  },
+  {
+    path: '/MultiagentPage',
+    name: 'MultiagentPage',
+    component: MultiagentView
   },
   {
     path: '/symptoms',
