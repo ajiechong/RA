@@ -19,7 +19,6 @@ import org.springframework.stereotype.Repository;  // 添加这个导入
 @Repository
 public class ChatHistoryDaoImpl implements ChatHistoryDao {
 
-
     @Override
     public List<ChatHistory> getAllChatHistory() {
         List<ChatHistory> chatHistoryList = new ArrayList<>();
@@ -142,6 +141,11 @@ public class ChatHistoryDaoImpl implements ChatHistoryDao {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    @Override
+    public List<org.example.researchassistant.entity.ChatHistory> findFirst5ByCidAndUidOrderByHtimeDesc(int cid, int uid) {
         return null;
     }
 

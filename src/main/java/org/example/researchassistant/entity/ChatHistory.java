@@ -1,5 +1,7 @@
 package org.example.researchassistant.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -13,9 +15,10 @@ import java.time.LocalDateTime;
 @TableName("history")
 public class ChatHistory {
     // Getter和Setter方法
-    private int Hid;        // 对话ID，主键
-    private int Cid;        // 会话ID
-    private int Uid;        // 用户ID，外键关联user表
+    @TableId(type = IdType.AUTO)
+    private Integer  Hid;        // 对话ID，主键
+    private Integer  Cid;        // 会话ID
+    private Integer  Uid;        // 用户ID，外键关联user表
     private LocalDateTime Htime;    // 对话时间
     private String Content;     // 对话内容
     private String Hname;       // 会话名称，默认取对话内容前6个字符
@@ -34,7 +37,9 @@ public class ChatHistory {
         this.Hname = HName;
         this.Role = Role;
     }
-
+    public void setHName(String HName) {
+        this.Hname = Hname;
+    }
     @Override
     public String toString() {
         return "ChatHistory{" +

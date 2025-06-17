@@ -18,6 +18,9 @@ import axios from "axios";
 import store from "@/store";
 import SearchPage from '@/views/SearchPage.vue';
 import MultiagentView from '@/views/MultiagentView.vue';
+import LiteratureView from "@/views/LiteratureView.vue";
+import ThesisView from "@/views/ThesisView.vue";
+
 
 
 const routes = [
@@ -40,6 +43,16 @@ const routes = [
     path: '/chat',
     name: 'chat',
     component: ChatView
+  },
+  {
+    path: '/Literature',
+    name: 'Literature',
+    component: LiteratureView
+  },
+  {
+    path: '/Thesis',
+    name: 'Thesis',
+    component: ThesisView
   },
   {
     path: '/MultiagentPage',

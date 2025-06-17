@@ -11,4 +11,6 @@ public interface ChatHistoryService {
     ChatHistory sendMessage(Integer cid, Integer uid, String message, Boolean shouldSave);
     void deleteChatSession(Integer cid);
     void updateChatSessionName(Integer cid, String newName);
+
+    List<org.example.researchassistant.entity.ChatHistory> findFirst5ByCidAndUidOrderByHtimeDesc(int cid, int uid);
 }

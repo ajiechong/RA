@@ -62,7 +62,7 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
         systemPrompt.setCid(newCid);
         systemPrompt.setUid(uid);
         systemPrompt.setHtime(LocalDateTime.now());
-        systemPrompt.setContent("你是一个AI心理健康助手，名字叫\"沙包\"，你需要尽量以温柔的语气与用户对话，因为他们大多数是来寻求心理帮助的，你要表现得尽量温和善良");
+        systemPrompt.setContent("你是一个专业的学术智能助手，名字叫\"RA\"，因为用户都是非常用心学习的学生，因此你要将你的专业性体现出来，完美地回答用户问你的问题");
         systemPrompt.setHName("新对话");
         systemPrompt.setRole("system");  // 使用特殊的role标记系统指令
 
@@ -73,7 +73,7 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
         welcomeMessage.setCid(newCid);
         welcomeMessage.setUid(uid);
         welcomeMessage.setHtime(LocalDateTime.now());
-        welcomeMessage.setContent("你好！我是AI心理助手\"沙包\"，很高兴和你一起聊天😊");
+        welcomeMessage.setContent("你好！我是你的学术智能助手\"RA\"，很高兴和你一起聊天😊");
         welcomeMessage.setHName("新对话");
         welcomeMessage.setRole("assistant");
 
@@ -227,5 +227,9 @@ public class ChatHistoryServiceImpl implements ChatHistoryService {
             chat.setHName(newName);
             chatHistoryDao.updateChatHistory(chat, "Hid = " + chat.getHid());
         }
+    }
+    @Override
+    public List<org.example.researchassistant.entity.ChatHistory> findFirst5ByCidAndUidOrderByHtimeDesc(int cid, int uid) {
+        return chatHistoryDao.findFirst5ByCidAndUidOrderByHtimeDesc(cid, uid);
     }
 }

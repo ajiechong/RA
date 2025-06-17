@@ -92,9 +92,8 @@
       <button class="tab" :class="{ active: $route.name === 'recommend' }" @click="goTo('recommend')">Recommend</button>
       <button class="tab" :class="{ active: $route.name === 'VideoResourcePage' }" @click="goTo('VideoResourcePage')">Video</button>
       <button class="tab" :class="{ active: $route.name === 'ArticleResourcePage' }" @click="goTo('ArticleResourcePage')">Article</button>
-      <button class="tab" :class="{ active: $route.name === 'chat' }" @click="goTo('chat')">Chat</button>
+      <button class="tab" :class="{ active: $route.name === 'chat' || $route.name === 'Literature' || $route.name === 'Thesis'}" @click="goTo('chat')">Chat</button>
       <button class="tab" :class="{ active: $route.name === 'MultiagentPage' }" @click="goTo('MultiagentPage')">MultiAgent</button>
-
     </div>
   </div>
 
@@ -632,7 +631,7 @@ header {
   right: 0;
   bottom: 0;
   background: url('@/assets/imgs/background/6.png'),
-  #e3e6f4; /* 第二个参数是背景颜色，最后一个数字是透明度 */
+  #e0e0e0; /* 第二个参数是背景颜色，最后一个数字是透明度 */
   background-position:right bottom;
   background-size: 50%;
   background-blend-mode: multiply; /* 可选：混合模式可以使颜色和图片更好地融合 */
@@ -654,7 +653,7 @@ input {
   position: absolute;
   top: 10px;
   right: 10px;
-  font-size: 24px;
+  font-size: 32px;
   cursor: pointer;
   color: #333;
   background: none;
@@ -665,7 +664,9 @@ input {
 }
 
 .close-btn:hover {
-  color: #ff4d4d; /* 鼠标悬停时改变颜色 */
+    color: #00008B; /* 鼠标悬停时改变颜色 */
+    transform: scale(1.2);
+    opacity: 0.8;
 }
 
 
@@ -683,13 +684,16 @@ input {
   cursor: pointer;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #007bff;
-  color: white;
+  background-color: #87CEEB;
   transition: background-color 0.3s;
+  margin-bottom: -5px;
+  margin-top: 10px;
 }
 
 .btn:hover {
-  background-color: #1fc75a;  /* 鼠标悬停时的背景色 */
+    background-color: #c8e4ff;
+    color: #0056b3;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -698,7 +702,7 @@ input {
   display: flex;
   justify-content: center; /* 水平居中 */
   align-items: center;     /* 垂直居中 */
-  font-size: 16px;         /* 字体大小 */
+  font-size: 18px;         /* 字体大小 */
   color: #333;             /* 默认字体颜色 */
   gap: 0; /* 去除子元素之间的间隙 */
   margin-bottom: 20px;
@@ -838,6 +842,7 @@ input {
   color: #888;
   text-align: center;
   margin-top: 20px;
+  margin-bottom: -15px;
 }
 
 .agreement-text a {

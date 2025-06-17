@@ -25,4 +25,6 @@ public interface ChatHistoryDao {
 
     // 获取特定会话的最后一条消息
     ChatHistory getLastMessageByCid(int cid);
+
+    List<org.example.researchassistant.entity.ChatHistory> findFirst5ByCidAndUidOrderByHtimeDesc(int cid, int uid);
 }

@@ -7,10 +7,10 @@
         <div class="w-10 h-10 rounded-full overflow-hidden shadow-lg">
           <img :src="aiAvatar" alt="AI头像" class="w-full h-full object-cover" />
         </div>
-        <div class="ml-4">
-          <h2 class="text-2xl font-bold text-gray-900">RA</h2>
-          <p class="text-sm text-gray-600">你的学术智能助手</p>
-        </div>
+          <NavigationMenu
+                  v-bind:ref="menuRef"
+                  :selected-option="currentPage"
+          />
       </div>
       <div class="h-px bg-gray-200 mx-4 my-2"></div>
 
@@ -436,12 +436,13 @@
 
 <script setup>
 import aiAvatar from '@/assets/imgs/icon/ai-avatar.svg';
-import { ref, onMounted, nextTick, watch } from 'vue'
+import {ref, onMounted, nextTick, watch} from 'vue'
 import axios from 'axios'
 import { API_BASE_URL } from '@/utils/api';
 // import { useRouter } from 'vue-router'
 // import { useStore } from 'vuex'
 import TypingMessage from '@/components/TypingMessage.vue';
+import NavigationMenu from '../components/NavigationMenu.vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import store from "@/store";
@@ -503,6 +504,8 @@ chatSessions.value = [
   { cid: 2, hname: '实验设计讨论', unread: false },
   { cid: 3, hname: '代码调试记录', unread: true }
 ];
+const menuRef = ref(null);
+const currentPage = ref('chat'); // 初始选中项
 
 // 初始化加载
 onMounted(async () => {
