@@ -1,5 +1,6 @@
 <template>
   <div class="content-section">
+    <!-- 论文列表 -->
     <div class="recommendation-list">
       <router-link
           class="paper-card"
@@ -8,15 +9,15 @@
           :to="{ name: 'PaperDetail', params: { id: paper.paperId } }"
       >
         <h3>{{ paper.title }}</h3>
-        <p class="meta">{{ paper.authors }} <br> {{ paper.submissionDate }}</p>
+        <p class="meta">{{ paper.authors }} <br />{{ paper.submissionDate }}</p>
       </router-link>
     </div>
 
-    <!-- 分页控制 -->
-    <div class="pagination" v-if="totalPages > 1">
-      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">上一页</button>
-      <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
-      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">下一页</button>
+    <!-- 分页控制（只根据 hasNext / hasPrev） -->
+    <div class="pagination" v-if="recommendedPapers.length">
+      <button @click="changePage('prev')" :disabled="currentPage === 1">上一页</button>
+      <span>第 {{ currentPage }} 页</span>
+      <button @click="changePage('next')" :disabled="!hasNext">下一页</button>
     </div>
   </div>
 </template>
@@ -30,8 +31,8 @@ export default {
     return {
       recommendedPapers: [],
       currentPage: 1,
-      totalPages: 1,
       pageSize: 10,
+      hasNext: false,   // ⬅ 仅靠这个判断“下一页”是否可点
     };
   },
 
@@ -42,39 +43,44 @@ export default {
         const page = parseInt(newPage) || 1;
         this.currentPage = page;
         this.fetchPapers();
-      }
-    }
+      },
+    },
   },
 
   methods: {
-    changePage(newPage) {
-      if (newPage >= 1 && newPage <= this.totalPages) {
+    changePage(direction) {
+      const newPage =
+          direction === 'prev' ? this.currentPage - 1 : this.currentPage + 1;
+      if (newPage >= 1 && (direction === 'prev' || this.hasNext)) {
         this.$router.push({
           name: 'recommend',
-          query: { page: newPage }
+          query: { page: newPage },
         });
       }
     },
 
     fetchPapers() {
-      axios.get('http://localhost:8082/papers', {
-        params: {
-          pageNum: this.currentPage,
-          pageSize: this.pageSize
-        },
-        timeout: 30000
-      })
-          .then(response => {
+      axios
+          .get('http://localhost:8082/papers/fast', {
+            // 你的“跳过 COUNT(*)”接口路径
+            params: {
+              pageNum: this.currentPage,
+              pageSize: this.pageSize,
+            },
+            timeout: 30000,
+          })
+          .then((response) => {
             const data = response.data;
             this.recommendedPapers = data.records || [];
-            this.totalPages = data.pages || 1;
+            this.hasNext = !!data.hasNext; // 布尔化
           })
-          .catch(error => {
+          .catch((error) => {
             console.error('获取推荐论文失败:', error);
             this.recommendedPapers = [];
+            this.hasNext = false;
           });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -100,6 +106,7 @@ export default {
   min-width: 300px;
   text-decoration: none;
   color: inherit;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .paper-card:hover {
@@ -121,5 +128,29 @@ export default {
 
 .pagination {
   margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination span {
+  margin-bottom: 1rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  background-color: #1a365d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.pagination button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
 }
 </style>

@@ -12,7 +12,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,7 +38,13 @@ public class PaperController {
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
 
-        Page<Paper> paperPage = paperService.getPapersWithPage(pageNum, pageSize);
+        QueryWrapper<Paper> qw = new QueryWrapper<>();
+        qw.select("paper_id", "title", "authors", "submission_date")
+                .orderByDesc("submission_date");
+
+        Page<Paper> paperPage = paperService.page(
+                new Page<>(pageNum, pageSize, false),   // ❗跳过 COUNT(*)
+                qw);
 
         Page<PaperSummaryDTO> dtoPage = new Page<>();
         BeanUtils.copyProperties(paperPage, dtoPage, "records");
@@ -51,6 +59,41 @@ public class PaperController {
         dtoPage.setRecords(summaries);
         return dtoPage;
     }
+
+    @GetMapping("/fast")
+    public Map<String, Object> getPapersFast(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
+        // 多查一条，判断是否还有下一页
+        Page<Paper> paperPage = new Page<>(pageNum, pageSize + 1);
+        paperPage.setSearchCount(false); // 不查 COUNT(*)
+        Page<Paper> resultPage = paperService.page(paperPage, new QueryWrapper<>());
+
+        List<Paper> records = resultPage.getRecords();
+        boolean hasNextPage = records.size() > pageSize;
+
+        // 去掉多查的那一条
+        if (hasNextPage) {
+            records = records.subList(0, pageSize);
+        }
+
+        List<PaperSummaryDTO> summaries = records.stream().map(p -> {
+            PaperSummaryDTO dto = new PaperSummaryDTO();
+            dto.setPaperId(p.getPaperId());
+            dto.setTitle(p.getTitle());
+            dto.setAuthors(p.getAuthors());
+            dto.setSubmissionDate(p.getSubmissionDate());
+            return dto;
+        }).collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("records", summaries);
+        result.put("hasNext", hasNextPage);
+        result.put("currentPage", pageNum);
+        return result;
+    }
+
 
     @GetMapping("/search")
     public Page<PaperSummaryDTO> searchPapers(

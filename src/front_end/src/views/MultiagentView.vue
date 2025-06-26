@@ -1,7 +1,5 @@
 <template>
   <div class="multiagent-container">
-    <!-- 顶部AppBar -->
-    <app-bar></app-bar>
 
     <div class="main-content">
       <!-- 左侧阶段导航 -->
@@ -27,18 +25,23 @@
       <div class="chat-area">
         <div class="stage-title">
           {{ stages[currentStage].name }}
-          <div
-              v-if="currentStage < stages.length - 1 && !stageStatus[currentStage]"
-              class="approve-btn"
-              @click="showConfirmModal = true"
-          >
-            APPROVED
-          </div>
-          <div
-              v-if="currentStage < stages.length - 1 && stageStatus[currentStage]"
-              class="approve-btn gray-btn"
-          >
-            APPROVED
+          <div class="stage-buttons">
+            <div
+                v-if="currentStage < stages.length - 1 && !stageStatus[currentStage]"
+                class="approve-btn"
+                @click="showConfirmModal = true"
+            >
+              APPROVED
+            </div>
+            <button class="restart-btn" @click="showRestartModal = true">
+              RESTART
+            </button>
+            <div
+                v-if="currentStage < stages.length - 1 && stageStatus[currentStage]"
+                class="approve-btn gray-btn"
+            >
+              APPROVED
+            </div>
           </div>
         </div>
 
@@ -102,6 +105,20 @@
         <div class="modal-footer">
           <button @click="showConfirmModal = false">取消</button>
           <button @click="confirmApproveStage">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 重新开始确认模态框 -->
+    <div v-if="showRestartModal" class="confirm-modal">
+      <div class="modal-overlay" @click="showRestartModal = false"></div>
+      <div class="modal-content">
+        <div class="modal-body">
+          <p>确认重新开始吗？您的所有对话记录将被清空。</p>
+        </div>
+        <div class="modal-footer">
+          <button @click="showRestartModal = false">取消</button>
+          <button @click="confirmRestart">确认</button>
         </div>
       </div>
     </div>
@@ -204,6 +221,7 @@ const showLoadMore = ref(false);
 const currentAgentIndex = ref(0);
 const stageStatus = ref(Array(stages.value.length).fill(false)); // 阶段锁定状态
 const showConfirmModal = ref(false); // 显示确认模态框
+const showRestartModal = ref(false); // 显示重新开始确认模态框
 const messageId = ref(1); // 消息ID生成器
 
 // 保存每个阶段的消息历史
@@ -221,6 +239,31 @@ onMounted(() => {
     });
   }
 });
+
+// 重新开始功能
+const confirmRestart = () => {
+  showRestartModal.value = false;
+
+  // 重置所有状态到初始值
+  currentStage.value = 0;
+  messages.value = [];
+  inputMessage.value = '';
+  isLoading.value = false;
+  showLoadMore.value = false;
+  currentAgentIndex.value = 0;
+  stageStatus.value = Array(stages.value.length).fill(false);
+  showConfirmModal.value = false;
+  messageId.value = 1;
+
+  // 清空所有阶段的消息历史
+  stageMessages.value = stages.value.map(() => []);
+
+  // 重新加载欢迎信息
+  const welcomeAgents = stages.value[currentStage.value].agents;
+  welcomeAgents.forEach(agent => {
+    addMessage('system', agent, `欢迎使用${agent}智能体，我将协助您完成${stages.value[currentStage.value].name}`);
+  });
+};
 
 // 处理发送按钮点击和回车事件
 const handleSend = () => {
@@ -364,7 +407,7 @@ const loadMoreMessages = () => {
 </script>
 
 <style scoped>
-/* 保持样式不变 */
+/* 顶部AppBar样式 */
 .multiagent-container {
   margin: 20px auto;
   height: calc(100vh - 40px);
@@ -373,6 +416,45 @@ const loadMoreMessages = () => {
   flex-direction: column;
   position: relative;
 }
+
+.app-bar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e4e6eb;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.app-bar-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.restart-btn {
+  background-color: #ef4444;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.restart-btn:hover {
+  background-color: #dc2626;
+}
+
 
 .main-content {
   display: flex;
@@ -469,6 +551,11 @@ const loadMoreMessages = () => {
   border-bottom: 1px solid #e4e6eb;
 }
 
+.stage-buttons {
+  display: flex;
+  gap: 12px;
+}
+
 .approve-btn {
   background-color: #10b981;
   color: white;
@@ -478,6 +565,7 @@ const loadMoreMessages = () => {
   font-size: 14px;
   font-weight: 500;
   transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .approve-btn:hover {
@@ -740,6 +828,17 @@ const loadMoreMessages = () => {
 
   .chat-area {
     margin-top: 8px;
+  }
+
+  .stage-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stage-buttons {
+    margin-top: 12px;
+    width: 100%;
+    justify-content: flex-end;
   }
 
   .modal-content {

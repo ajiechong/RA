@@ -1,11 +1,13 @@
 <template>
   <div class="content-section">
     <div class="search-box">
-      <input type="text" v-model="searchQuery" placeholder="请输入关键词："  />
+      <input type="text" v-model="searchQuery" placeholder="请输入关键词：" />
       <button @click="handleSearch()">搜 索</button>
     </div>
+
     <div class="search-results">
       <p v-if="searchResults.length === 0 && searchPerformed">无相关结果</p>
+
       <div class="results-grid" v-else>
         <router-link
             class="paper-card"
@@ -16,8 +18,15 @@
             tabindex="0"
         >
           <h3>{{ result.title }}</h3>
-          <p class="meta">{{ result.authors }} <br> {{ result.submissionDate }}</p>
+          <p class="meta">{{ result.authors }} <br />{{ result.submissionDate }}</p>
         </router-link>
+      </div>
+
+      <!-- 分页控件 -->
+      <div v-if="totalPages > 1" class="pagination">
+        <button :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</button>
+        <span>第 {{ currentPage }} / {{ totalPages }} 页</span>
+        <button :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</button>
       </div>
     </div>
   </div>
@@ -33,23 +42,24 @@ export default {
       searchQuery: '',
       searchResults: [],
       searchPerformed: false,
+      currentPage: 1,
+      totalPages: 1,
     };
   },
 
-  // 监听路由参数变化
   watch: {
     '$route.query.keyword': {
       immediate: true,
-      handler(newKeyword) {
-        if (newKeyword) {
-          this.searchQuery = newKeyword;
-          this.performSearch();  // 自动触发搜索
-        } else {
-          this.searchResults = [];
-          this.searchPerformed = false;
-        }
-      }
-    }
+      handler() {
+        this.restoreSearchFromRoute();
+      },
+    },
+    '$route.query.page': {
+      immediate: true,
+      handler() {
+        this.restoreSearchFromRoute();
+      },
+    },
   },
 
   methods: {
@@ -61,11 +71,29 @@ export default {
         return;
       }
 
-      // 更新路由 query 参数（触发 watch）
+      // 搜索时跳转到第1页
       this.$router.push({
         name: 'search',
-        query: { keyword: trimmed }
+        query: {
+          keyword: trimmed,
+          page: 1,
+        },
       });
+    },
+
+    restoreSearchFromRoute() {
+      const keyword = this.$route.query.keyword || '';
+      const page = parseInt(this.$route.query.page) || 1;
+
+      if (keyword) {
+        this.searchQuery = keyword;
+        this.performSearch(page);
+      } else {
+        this.searchResults = [];
+        this.searchPerformed = false;
+        this.currentPage = 1;
+        this.totalPages = 1;
+      }
     },
 
     performSearch(pageNum = 1) {
@@ -85,21 +113,29 @@ export default {
           })
           .then((response) => {
             this.searchResults = response.data.records || [];
+            this.currentPage = response.data.current || 1;
+            this.totalPages = response.data.pages || 1;
             this.searchPerformed = true;
           })
           .catch((error) => {
             console.error('搜索失败:', error);
             this.searchResults = [];
             this.searchPerformed = true;
-            if (error.response) {
-              console.error('错误详情:', error.response.data);
-            }
           });
     },
-  }
+
+    changePage(newPage) {
+      this.$router.push({
+        name: 'search',
+        query: {
+          keyword: this.searchQuery,
+          page: newPage,
+        },
+      });
+    },
+  },
 };
 </script>
-
 
 <style scoped>
 .content-section {
@@ -177,5 +213,28 @@ export default {
   color: #666;
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
+}
+
+.pagination {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  background-color: #0e2d57;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.pagination button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
 }
 </style>
