@@ -7,8 +7,27 @@
         <h3>摘要</h3>
         <p>{{ paper.abstract }}</p>
       </div>
-      <div class="link-section">
-        <a :href="paper.pdfLink" target="_blank" rel="noopener">点击查看原文 PDF</a>
+      <div class="link-section" style="display: flex;justify-content: center; flex-wrap: wrap; gap: 35px; margin-left: -10px">
+          <div>
+            <a :href="paper.pdfLink" target="_blank" rel="noopener" class="btn-style">
+              <i class="fa fa-file-pdf text-red-500"></i> 点击查看原文 PDF
+            </a>
+          </div>
+          <div>
+            <a href="javascript:void(0)" @click="navigateToSummary(paper.id,paper.title,paper.pdfLink)" class="btn-style">
+              <i class="fa fa-summary text-blue-500"></i> 点击进行文献分析
+            </a>
+          </div>
+          <div>
+            <a href="javascript:void(0)" @click="navigateToRelated(paper.id,paper.title,paper.pdfLink)" class="btn-style">
+              <i class="fa fa-book text-green-500"></i> 点击搜索相关文献
+            </a>
+          </div>
+          <div>
+            <a href="javascript:void(0)" @click="navigateToTranslated(paper.id,paper.title,paper.pdfLink)" class="btn-style">
+              <i class="fa fa-book text-green-500"></i> 点击翻译并概括论文
+            </a>
+          </div>
       </div>
     </div>
   </div>
@@ -44,7 +63,43 @@ export default {
         .catch(error => {
           console.error('获取论文详情失败:', error);
         });
-    }
+    },
+      // 跳转到文献总结页面
+      navigateToSummary(paperId,paperTitle,paperPdfLink) {
+          this.$router.push({
+              name: 'SummaryPage',
+              params: { id: paperId }
+          });
+          sessionStorage.setItem('selectedPaper', JSON.stringify({
+              id: paperId,
+              title: paperTitle,
+              pdf: paperPdfLink
+          }));
+      },
+      // 跳转到相关文献页面
+      navigateToRelated(paperId,paperTitle,paperPdfLink) {
+          this.$router.push({
+              name: 'RelatedPapers',
+              params: { id: paperId }
+          })
+          sessionStorage.setItem('selectedPaper', JSON.stringify({
+              id: paperId,
+              title: paperTitle,
+              pdf: paperPdfLink
+          }));
+      },
+      //跳转到文献翻译页面
+      navigateToTranslated(paperId,paperTitle,paperPdfLink) {
+          this.$router.push({
+              name: 'Translated',
+              params: { id: paperId }
+          });
+          sessionStorage.setItem('selectedPaper', JSON.stringify({
+              id: paperId,
+              title: paperTitle,
+              pdf: paperPdfLink
+          }));
+      }
   }
 };
 </script>

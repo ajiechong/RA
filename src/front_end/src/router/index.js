@@ -18,9 +18,10 @@ import axios from "axios";
 import store from "@/store";
 import SearchPage from '@/views/SearchPage.vue';
 import MultiagentView from '@/views/MultiagentView.vue';
-import LiteratureView from "@/views/LiteratureView.vue";
-import ThesisView from "@/views/ThesisView.vue";
 
+import SummaryPage from "@/components/SummaryPage.vue"
+import RelatedPapers from "@/components/RelatedPapers.vue"
+import PaperTranslated from "@/components/PaperTranslated.vue"
 
 
 const routes = [
@@ -40,19 +41,24 @@ const routes = [
     component: RecommendView
   },
   {
+    path: '/summary/:id',
+    name: 'SummaryPage',
+    component: SummaryPage
+  },
+  {
+    path: '/related/:id',
+    name: 'RelatedPapers',
+    component: RelatedPapers
+  },
+  {
+    path: '/translated/:id',
+    name: 'Translated',
+    component: PaperTranslated
+  },
+  {
     path: '/chat',
     name: 'chat',
     component: ChatView
-  },
-  {
-    path: '/Literature',
-    name: 'Literature',
-    component: LiteratureView
-  },
-  {
-    path: '/Thesis',
-    name: 'Thesis',
-    component: ThesisView
   },
   {
     path: '/MultiagentPage',
