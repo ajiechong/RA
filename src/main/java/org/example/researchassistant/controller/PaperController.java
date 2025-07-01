@@ -93,7 +93,7 @@ public class PaperController {
     }
 
     /**
-     * 分页获取论文列表（保持队友的优化）
+     * 分页获取论文列表
      */
     @GetMapping
     public Page<PaperSummaryDTO> getPapersSummary(
@@ -123,7 +123,7 @@ public class PaperController {
     }
 
     /**
-     * 快速分页接口（保持队友的优化）
+     * 快速分页接口
      */
     @GetMapping("/fast")
     public Map<String, Object> getPapersFast(
@@ -241,6 +241,82 @@ public class PaperController {
         dtoPage.setRecords(summaries);
         return dtoPage;
     }
+
+    /**
+     * 检查数据库记录数
+     */
+    @GetMapping("/count")
+    public Map<String, Object> getDatabaseCount() {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            long count = paperService.count();
+            result.put("database_count", count);
+            result.put("status", "success");
+
+            // 获取前5条数据看看
+            List<Paper> samples = paperService.list(new QueryWrapper<Paper>().last("LIMIT 5"));
+            result.put("sample_titles", samples.stream()
+                    .map(Paper::getTitle)
+                    .collect(Collectors.toList()));
+
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("error", e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 检查ES服务状态
+     */
+    @GetMapping("/check-es")
+    public Map<String, Object> checkES() {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("service_injected", elasticsearchService != null);
+
+        if (elasticsearchService != null) {
+            result.put("service_class", elasticsearchService.getClass().getName());
+            result.put("message", "ES服务已注入");
+        } else {
+            result.put("message", "ES服务未注入");
+        }
+
+        return result;
+    }
+
+    /**
+     * 强制重新同步所有数据
+     */
+    @PostMapping("/force-sync")
+    public String forceSyncAllData() {
+        try {
+            logger.info("=== 开始强制同步所有数据 ===");
+
+            if (elasticsearchService == null) {
+                return "ERROR: Elasticsearch 服务未启用";
+            }
+
+            // 检查数据库数据
+            long dbCount = paperService.count();
+            logger.info("数据库中共有 {} 条记录", dbCount);
+
+            if (dbCount == 0) {
+                return "ERROR: 数据库中没有数据";
+            }
+
+            // 执行同步
+            elasticsearchService.indexAllPapers();
+
+            logger.info("=== 强制同步完成 ===");
+            return "SUCCESS: 强制同步完成，数据库有 " + dbCount + " 条记录";
+
+        } catch (Exception e) {
+            logger.error("强制同步失败", e);
+            return "ERROR: " + e.getMessage();
+        }
+    }
+
 
     // ===== 其他接口放在最后 =====
 
