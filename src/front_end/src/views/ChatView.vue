@@ -442,7 +442,6 @@ import { API_BASE_URL } from '@/utils/api';
 // import { useRouter } from 'vue-router'
 // import { useStore } from 'vuex'
 import TypingMessage from '@/components/TypingMessage.vue';
-import NavigationMenu from '../components/NavigationMenu.vue';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import store from "@/store";

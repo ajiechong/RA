@@ -1,3 +1,4 @@
+import io
 import os
 from datetime import date
 from typing import List, Optional
@@ -45,6 +46,12 @@ AGENTS = {
 def health_check():
     return {"status": "OK"}
 
+import re
+import requests
+from io import BytesIO
+import pdfplumber
+
+
 @app.post("/chat/{role}")
 def chat_with_agent(role: str, request: dict):
     """文献分析接口"""
@@ -55,12 +62,79 @@ def chat_with_agent(role: str, request: dict):
     query = request.get("query", "")
     context = request.get("context", "")
     results = request.get("results", [])
+    query += "context是pdf提取出来内容，按照context的格式进行翻译即可"
+    # 改进的PDF链接提取正则（允许URL后接标点符号）
+    pdf_link = context
+    print(f"PDF链接: {pdf_link}")
+
+    try:
+        pdf_content = extract_text_from_pdf_url(pdf_link)
+        if pdf_content:
+            # 将PDF内容添加到上下文中，限制长度为200,000字符
+            context += f"\n\n从PDF提取的内容（链接: {pdf_link}）:\n{pdf_content[:200000]}..."
+            print(f"成功添加PDF内容，长度: {len(pdf_content)}")
+        else:
+            context += f"\n\n[警告]无法从PDF提取文本内容: {pdf_link}"
+    except Exception as e:
+        context += f"\n\n[错误]解析PDF失败 ({pdf_link}): {str(e)}"
+        print(f"PDF解析错误: {e}")
 
     try:
         response = agent.generate_response(query, context, results)
         return {"response": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def extract_text_from_pdf_url(url: str, max_pages: int = None) -> str:
+    """
+    从PDF链接提取文本内容
+
+    参数:
+        url: PDF文件的URL
+        max_pages: 限制提取的最大页数（可选），用于大文件处理
+    """
+    try:
+        # 发送HTTP请求获取PDF内容，设置超时时间为60秒
+        response = requests.get(url, timeout=60)
+        response.raise_for_status()  # 检查请求是否成功
+
+        # 验证内容类型是否为PDF
+        content_type = response.headers.get('Content-Type', '')
+        if 'pdf' not in content_type.lower():
+            raise ValueError(f"预期PDF文件，但得到: {content_type}")
+
+        # 使用BytesIO将响应内容转换为内存中的文件对象
+        pdf_bytes = io.BytesIO(response.content)
+
+        # 打开PDF文件
+        with pdfplumber.open(pdf_bytes) as pdf:
+            total_pages = len(pdf.pages)
+            if max_pages and total_pages > max_pages:
+                print(f"警告: PDF共有{total_pages}页，将仅处理前{max_pages}页")
+
+            extracted_text = ""
+            # 逐页提取文本
+            for i, page in enumerate(pdf.pages, 1):
+                if max_pages and i > max_pages:
+                    break
+
+                # 提取当前页文本
+                page_text = page.extract_text() or ""
+
+                # 添加页码标记和分隔符
+                extracted_text += f"\n\n===== 第{i}页  ====="
+                extracted_text += f"\n{page_text}"
+
+            return extracted_text.strip()
+
+    except requests.exceptions.RequestException as e:
+        print(f"网络错误 ({url}): {e}")
+        return None
+    except Exception as e:
+        print(f"PDF解析失败 ({url}): {e}")
+        return None
+
 
 # 定义RAG请求模型
 class RAGQueryRequest(BaseModel):
@@ -84,38 +158,6 @@ def run_rag_query(request: RAGQueryRequest):
         return {"results": results, "total": len(results)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-### 历史对话压缩接口
-class ContextCompressionRequest(BaseModel):
-    content: str
-
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),  # 从环境变量获取 API Key
-    base_url="https://api.agicto.cn/v1"
-)
-@app.post("/context/compress")
-def compress_context(request: ContextCompressionRequest):
-    """上下文压缩接口"""
-    prompt = f"""请用中文为以下学术论文内容生成简洁摘要（300字内），指出其创新点和研究价值：
-    {request.content} 
-    你是一个专业的上下文压缩专家，擅长从对话历史中提取关键信息并压缩成300字以内的内容，保留所有重要细节和逻辑关系。
-    请将历史对话中与当前问题相关的内容压缩成不多于300字的内容.
-    """
-
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-            max_tokens=2048
-        )
-        print(response)
-        content = response.choices[0].message.content.strip()
-        print("压缩结果:", content)
-        return {"compressed_context": content}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"上下文压缩失败: {str(e)}")
-
 
 ### rag新增文章接口
 class ArticleRequest(BaseModel):

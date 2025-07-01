@@ -1,13 +1,22 @@
 const { defineConfig } = require('@vue/cli-service');
+
 module.exports = defineConfig({
   transpileDependencies: true,
+
   devServer: {
     proxy: {
       '/api': {
         target: 'http://localhost:8082', // 后端服务的地址
         changeOrigin: true, // 确保跨域时 Host 头被改成目标地址
-        pathRewrite: { '^/api': '/api' } // 保留 /api 前缀
-      }
+        // pathRewrite: { '^/api': '/api' }, // 保留 /api 前缀
+        rewrite: (path) => path.replace(/^\/api/, ''), // 移除请求路径中的 /api 前缀
+        // 额外配置（处理预检请求）
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Origin', 'http://localhost:8080'); // 可选：设置请求来源
+          });
+        }
+      },
     }
   }
 });
