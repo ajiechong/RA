@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import static org.springframework.http.ResponseEntity.badRequest;
 
@@ -57,7 +56,8 @@ public class FastAPIClientController {
     ) {
         // 提取必填参数 query
         String query = (String) requestBody.get("query");
-
+        String context = (String) requestBody.get("context");
+        String Title = (String) requestBody.get("Title");
         if (query == null || query.isEmpty()) {
             return badRequest().body(Map.of(
                     "error", "query 参数为必填项"
@@ -68,8 +68,8 @@ public class FastAPIClientController {
         List<String> fields = (List<String>) requestBody.get("fields");
         // 提取可选参数 top_n（默认 null）
         Integer top_n = (Integer) requestBody.get("top_n");
-        System.out.println(fastAPIService.queryRag(query, fields, top_n));
+        System.out.println(fastAPIService.queryRag(query, fields, top_n, context, Title));
         // 调用服务层，传递参数
-        return fastAPIService.queryRag(query, fields, top_n);
+        return fastAPIService.queryRag(query, fields, top_n, context, Title);
     }
 }

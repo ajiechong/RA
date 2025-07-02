@@ -31,16 +31,12 @@
                 </div>
             </div>
         </div>
-        <div class="input-area">
-            <textarea
-                v-model="userInput"
-                placeholder="不支持输入问题,如果返回内容失败，请刷新再尝试"
-                rows="3"
-                :disabled="isLoading"
-            ></textarea>
-            <button disabled>
-                {{ isFinished? '思考结束' : '正在思考...'  }}
-            </button>
+        <div class="input-area-parent">
+            <div class="input-area">
+                <button disabled>
+                    {{ isFinished? '思考结束' : '正在思考...'  }}
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -278,6 +274,7 @@ export default {
 <style scoped>
 .chat-window {
     max-width: 1000px;
+    max-height: 700px;
     margin: 20px auto;
     padding: 20px;
     background: #fff;
@@ -285,7 +282,7 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .chat-history {
-    height: 400px;
+    height: 600px;
     overflow-y: auto;
     margin-bottom: 20px;
     padding: 10px;
@@ -326,26 +323,16 @@ export default {
 .input-area {
     display: flex;
     gap: 10px;
+    color: black;
+    margin-left: auto; /* 即使父容器有其他元素，也会靠右 */
 }
-textarea {
-    flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    resize: vertical;
+.input-area-parent{
+    display: flex;
+    /* 方法A：直接设置右侧对齐 */
+    justify-content: flex-end;
+    color:black
 }
-button {
-    padding: 10px 20px;
-    background: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
+
 .section-title {
     font-weight: 800;
     margin-bottom: 16px;
