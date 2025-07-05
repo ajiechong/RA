@@ -159,11 +159,7 @@ public class PaperElasticsearchServiceImpl implements PaperElasticsearchService 
         }
     }
 
-    @Override
-    public Page<PaperDocument> searchPapers(String keyword, Pageable pageable) {
-        // 使用组合搜索：标题或作者包含关键词
-        return elasticsearchRepository.findByTitleContainingOrAuthorsContaining(keyword, keyword, pageable);
-    }
+
 
     @Override
     public Page<PaperDocument> advancedSearchPapers(String keyword, Pageable pageable) {
@@ -203,5 +199,33 @@ public class PaperElasticsearchServiceImpl implements PaperElasticsearchService 
     @Override
     public void deletePaper(String id) {
         elasticsearchRepository.deleteById(id);
+    }
+
+
+    @Override
+    public Page<PaperDocument> multiFieldSearch(String keyword, Pageable pageable) {
+        return elasticsearchRepository.multiFieldSearch(keyword, pageable);
+    }
+
+    @Override
+    public Page<PaperDocument> advancedMultiFieldSearch(String keyword, Pageable pageable) {
+        return elasticsearchRepository.advancedMultiFieldSearch(keyword, pageable);
+    }
+
+    @Override
+    public Page<PaperDocument> crossFieldsSearch(String keyword, Pageable pageable) {
+        return elasticsearchRepository.crossFieldsSearch(keyword, pageable);
+    }
+
+    @Override
+    public Page<PaperDocument> hybridSearch(String keyword, Pageable pageable) {
+        return elasticsearchRepository.hybridSearch(keyword, pageable);
+    }
+
+    // 🔥 修改原有的搜索方法，使用更好的多字段搜索
+    @Override
+    public Page<PaperDocument> searchPapers(String keyword, Pageable pageable) {
+        // 使用高级多字段搜索替代简单的OR查询
+        return elasticsearchRepository.advancedMultiFieldSearch(keyword, pageable);
     }
 }

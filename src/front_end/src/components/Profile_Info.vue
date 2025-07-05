@@ -759,6 +759,8 @@ export default {
   border: 1px solid #ced4da;
   border-radius: 5px;
   margin-right: 20px;
+  background-color: #ffffff !important;
+  color: #333333 !important;
 }
 
 .form-group.d-flex {

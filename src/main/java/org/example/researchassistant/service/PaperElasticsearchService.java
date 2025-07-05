@@ -28,4 +28,12 @@ public interface PaperElasticsearchService {
 
     // 删除文档
     void deletePaper(String id);
+
+    Page<PaperDocument> multiFieldSearch(String keyword, Pageable pageable);
+
+    Page<PaperDocument> advancedMultiFieldSearch(String keyword, Pageable pageable);
+
+    Page<PaperDocument> crossFieldsSearch(String keyword, Pageable pageable);
+
+    Page<PaperDocument> hybridSearch(String keyword, Pageable pageable);
 }
