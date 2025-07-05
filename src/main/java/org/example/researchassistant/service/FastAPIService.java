@@ -73,7 +73,9 @@ public class FastAPIService {
     public ResponseEntity<Map<String, Object>> queryRag(
             String query,
             List<String> fields,
-            Integer top_n
+            Integer top_n,
+            String context,
+            String Title
     ) {
         try {
             // 构造请求体，处理可选参数
@@ -89,6 +91,8 @@ public class FastAPIService {
             if (top_n != null && top_n > 0) {
                 requestBody.put("top_n", top_n);
             }
+            requestBody.put("context", context);
+            requestBody.put("Title", Title);
 
             // 设置请求头
             HttpHeaders headers = new HttpHeaders();

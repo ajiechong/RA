@@ -62,7 +62,7 @@ def chat_with_agent(role: str, request: dict):
     query = request.get("query", "")
     context = request.get("context", "")
     results = request.get("results", [])
-    query += "context是pdf提取出来内容，按照context的格式进行翻译即可"
+    query += "context是pdf提取出来内容，按照context的格式返回即可"
     # 改进的PDF链接提取正则（允许URL后接标点符号）
     pdf_link = context
     print(f"PDF链接: {pdf_link}")
@@ -141,6 +141,8 @@ class RAGQueryRequest(BaseModel):
     query: str
     fields: List[str] = ['title', 'abstract']
     top_n: int = 5
+    context: str
+    Title: str
 
 # 初始化RAG引擎
 vector_db = VectorDatabase()
@@ -149,11 +151,17 @@ rag_engine = RAGQueryEngine(vector_db)
 # 新增RAG查询接口
 @app.post("/rag/query")
 def run_rag_query(request: RAGQueryRequest):
+    context = request.context
+    Title = request.Title
+    pdf_link = context
+    print(f"PDF链接: {pdf_link}")
+    abstract = extract_text_from_pdf_url(pdf_link,1)
+    request.query = f"{request.query}\n\n参考论文: {Title}\n摘要: {abstract}"
     try:
         results = rag_engine.query_rag_system(
             query=request.query,
             fields=request.fields,
-            top_n=request.top_n
+            top_n=request.top_n,
         )
         return {"results": results, "total": len(results)}
     except Exception as e:

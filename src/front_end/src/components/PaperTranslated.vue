@@ -31,16 +31,12 @@
                 </div>
             </div>
         </div>
-        <div class="input-area">
-            <textarea
-                v-model="userInput"
-                placeholder="不支持输入问题"
-                rows="3"
-                :disabled="isLoading"
-            ></textarea>
-            <button disabled>
-                {{ isFinished? '思考结束' : '正在思考...'  }}
-            </button>
+        <div class="input-area-parent">
+            <div class="input-area">
+                <button disabled>
+                    {{ isFinished? '思考结束' : '正在思考...'  }}
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -221,7 +217,7 @@ export default {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .chat-history {
-    height: 400px;
+    height: 600px;
     overflow-y: auto;
     margin-bottom: 20px;
     padding: 10px;
@@ -262,7 +258,16 @@ export default {
 .input-area {
     display: flex;
     gap: 10px;
+    color: black;
+    margin-left: auto; /* 即使父容器有其他元素，也会靠右 */
 }
+.input-area-parent{
+    display: flex;
+    /* 方法A：直接设置右侧对齐 */
+    justify-content: flex-end;
+    color:black
+}
+
 textarea {
     flex-grow: 1;
     padding: 10px;
