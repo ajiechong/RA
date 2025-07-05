@@ -4,7 +4,7 @@
       <div class="survey-area">
         <!-- 标题区域 -->
         <div class="survey-header">
-          <h3>🔬 7阶段文献调研工作流</h3>
+          <h3>🔬 5阶段文献调研工作流</h3>
           <div class="header-buttons">
             <button class="restart-btn" @click="showRestartModal = true">
               重新开始
@@ -15,9 +15,9 @@
         <!-- 工作流进度显示 -->
         <div class="workflow-progress">
           <div class="progress-title">
-            <h4>📋 7阶段调研进度跟踪</h4>
+            <h4>📋 5阶段调研进度跟踪</h4>
             <span class="progress-info">
-              {{ currentStageIndex + 1 }} / 7 阶段
+              {{ currentStageIndex + 1 }} / 5 阶段
             </span>
           </div>
           <div class="progress-bar">
@@ -55,11 +55,11 @@
           <!-- 欢迎信息 -->
           <div v-if="messages.length === 0" class="welcome-section">
             <div class="welcome-icon">🔬</div>
-            <h3>7阶段文献调研智能助手</h3>
-            <p>真正的autogen智能体协作 - 按照 <strong>7阶段专业化流程</strong> 执行高质量文献调研</p>
+            <h3>5阶段文献调研智能助手</h3>
+            <p>真正的autogen智能体协作 - 按照 <strong>5阶段专业化流程</strong> 执行高质量文献调研</p>
 
             <div class="workflow-explanation">
-              <h4>🎯 7阶段调研流程说明：</h4>
+              <h4>🎯 5阶段调研流程说明：</h4>
               <div class="flow-steps">
                 <div class="flow-step">
                   <span class="step-number">1</span>
@@ -72,7 +72,7 @@
                   <span class="step-number">2</span>
                   <div class="step-content">
                     <strong>🔍 论文检索获取</strong> (PaperRetriever)
-                    <p>多轮系统化检索，获取25-40篇高质量学术论文</p>
+                    <p>多轮系统化检索，获取25-30篇高质量学术论文</p>
                   </div>
                 </div>
                 <div class="flow-step">
@@ -92,22 +92,8 @@
                 <div class="flow-step">
                   <span class="step-number">5</span>
                   <div class="step-content">
-                    <strong>📈 可视化创建</strong> (VisualizationSpecialist)
-                    <p>创建交互式图表和技术发展时间线</p>
-                  </div>
-                </div>
-                <div class="flow-step">
-                  <span class="step-number">6</span>
-                  <div class="step-content">
                     <strong>📝 综述报告生成</strong> (ReportGenerator)
-                    <p>生成8000-10000词完整学术综述报告</p>
-                  </div>
-                </div>
-                <div class="flow-step">
-                  <span class="step-number">7</span>
-                  <div class="step-content">
-                    <strong>✅ 质量审核优化</strong> (QualityReviewer)
-                    <p>最终质量检查，确保学术标准和完整性</p>
+                    <p>生成6000-8000词完整学术综述报告</p>
                   </div>
                 </div>
               </div>
@@ -116,11 +102,11 @@
             <div class="interaction-guide">
               <h4>💡 交互说明：</h4>
               <ul>
-                <li>🔄 <strong>7阶段顺序执行</strong>：专业智能体按固定顺序完成各自任务</li>
+                <li>🔄 <strong>5阶段顺序执行</strong>：专业智能体按固定顺序完成各自任务</li>
                 <li>⏸️ <strong>阶段确认机制</strong>：每个阶段完成后等待您的确认</li>
                 <li>✅ <strong>继续/重做选择</strong>：您可以确认继续或要求重新执行</li>
                 <li>📝 <strong>指导调整功能</strong>：提供具体意见指导智能体调整工作</li>
-                <li>🎓 <strong>高质量产出</strong>：最终生成8000+词专业学术综述报告</li>
+                <li>🎓 <strong>高质量产出</strong>：最终生成6000-8000词专业学术综述报告</li>
               </ul>
             </div>
 
@@ -156,30 +142,16 @@
                   </div>
                 </div>
                 <div class="feature-item">
-                  <span class="feature-icon">📈</span>
-                  <div class="feature-text">
-                    <strong>专业可视化</strong>
-                    <p>交互式图表展示</p>
-                  </div>
-                </div>
-                <div class="feature-item">
                   <span class="feature-icon">📝</span>
                   <div class="feature-text">
                     <strong>高质量报告</strong>
                     <p>符合期刊标准综述</p>
                   </div>
                 </div>
-                <div class="feature-item">
-                  <span class="feature-icon">✅</span>
-                  <div class="feature-text">
-                    <strong>严格质量保证</strong>
-                    <p>最终审核和认证</p>
-                  </div>
-                </div>
               </div>
             </div>
 
-            <p class="start-hint">请输入您的研究主题，开始7阶段智能文献调研 👇</p>
+            <p class="start-hint">请输入您的研究主题，开始5阶段智能文献调研 👇</p>
           </div>
 
           <!-- 对话消息 -->
@@ -301,7 +273,7 @@
           <h4>重新开始确认</h4>
         </div>
         <div class="modal-body">
-          <p>确认要重新开始7阶段文献调研吗？当前的所有进度和对话记录将被清空。</p>
+          <p>确认要重新开始5阶段文献调研吗？当前的所有进度和对话记录将被清空。</p>
         </div>
         <div class="modal-footer">
           <button @click="showRestartModal = false" class="cancel-btn">取消</button>
@@ -315,7 +287,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
 
-// 7阶段文献调研流程
+// 5阶段文献调研流程
 const surveyStages = ref([
   {
     name: '调研策略制定',
@@ -338,19 +310,9 @@ const surveyStages = ref([
     description: '跨文献知识整合，构建统一理论框架'
   },
   {
-    name: '可视化创建',
-    agent: 'VisualizationSpecialist',
-    description: '创建交互式图表和技术发展时间线'
-  },
-  {
     name: '综述报告生成',
     agent: 'ReportGenerator',
-    description: '生成8000-10000词完整学术综述报告'
-  },
-  {
-    name: '质量审核优化',
-    agent: 'QualityReviewer',
-    description: '最终质量检查，确保学术标准和完整性'
+    description: '生成6000-8000词完整学术综述报告'
   }
 ]);
 
@@ -379,15 +341,13 @@ const currentStageInfo = computed(() => {
   return null;
 });
 
-// 7阶段智能体图标映射
+// 5阶段智能体图标映射
 const agentIcons = {
   'SurveyDirector': '🎯',
   'PaperRetriever': '🔍',
   'PaperAnalyzer': '📊',
   'KnowledgeSynthesizer': '🔗',
-  'VisualizationSpecialist': '📈',
-  'ReportGenerator': '📝',
-  'QualityReviewer': '✅'
+  'ReportGenerator': '📝'
 };
 
 // 获取智能体图标
@@ -401,16 +361,14 @@ const getAgentStage = (agentName) => {
   return stage ? stage.name : '';
 };
 
-// 7阶段显示名称映射
+// 5阶段显示名称映射
 const getStageDisplayName = (stageName) => {
   const stageMap = {
     '🎯 调研策略制定': '调研策略制定',
     '🔍 论文检索获取': '论文检索获取',
     '📊 深度论文分析': '深度论文分析',
     '🔗 知识综合整合': '知识综合整合',
-    '📈 可视化创建': '可视化创建',
     '📝 综述报告生成': '综述报告生成',
-    '✅ 质量审核优化': '质量审核优化',
     // 向后兼容
     '任务分配阶段': '调研策略制定',
     '论文获取阶段': '论文检索获取',
@@ -425,7 +383,7 @@ const getInputPlaceholder = () => {
   if (isWaitingForApproval.value && currentStageInfo.value) {
     return `请确认 "${currentStageInfo.value.name}" 阶段或输入调整意见...`;
   }
-  return '请输入您的研究主题开始7阶段文献调研...';
+  return '请输入您的研究主题开始5阶段文献调研...';
 };
 
 // 格式化消息内容
@@ -489,13 +447,13 @@ const connectWebSocket = () => {
   ws = new WebSocket(wsUrl);
 
   ws.onopen = () => {
-    console.log('7阶段文献调研 WebSocket 已连接');
+    console.log('5阶段文献调研 WebSocket 已连接');
     isLoading.value = false;
     isWaitingForApproval.value = false;
   };
 
   ws.onmessage = (event) => {
-    console.log('收到7阶段工作流消息:', event.data);
+    console.log('收到5阶段工作流消息:', event.data);
     let msg;
     try {
       msg = JSON.parse(event.data);
@@ -556,13 +514,13 @@ const connectWebSocket = () => {
   };
 
   ws.onerror = (error) => {
-    console.error('7阶段工作流 WebSocket 出错:', error);
+    console.error('5阶段工作流 WebSocket 出错:', error);
     isLoading.value = false;
     isWaitingForApproval.value = false;
   };
 
   ws.onclose = () => {
-    console.log('7阶段工作流 WebSocket 已断开，尝试重连...');
+    console.log('5阶段工作流 WebSocket 已断开，尝试重连...');
     isLoading.value = false;
     isWaitingForApproval.value = false;
     setTimeout(connectWebSocket, 3000);
@@ -736,10 +694,10 @@ const confirmRestart = () => {
   transition: width 0.5s ease;
 }
 
-/* 7阶段流程显示 */
+/* 5阶段流程显示 */
 .stages-flow {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   align-items: center;
   overflow-x: auto;
